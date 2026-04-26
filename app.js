@@ -702,11 +702,35 @@ class ArchiveGame {
 
 // ===== ИНИЦИАЛИЗАЦИЯ ИГРЫ =====
 document.addEventListener('DOMContentLoaded', () => {
-    window.game = new ArchiveGame();
-    
-    // Для отладки в консоли
-    console.log('%cАРХИВ №47 ИНИЦИАЛИЗИРОВАН', 'color: #00ff00; font-size: 16px; font-weight: bold;');
-    console.log('Используйте window.game для доступа к объекту игры');
+    const bootScreen = document.getElementById('bootScreen');
+    const bootProgress = document.getElementById('bootProgress');
+    const systemContainer = document.getElementById('systemContainer');
+
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+            if (bootProgress) bootProgress.style.width = '100%';
+            
+            setTimeout(() => {
+                if (bootScreen) bootScreen.classList.add('hidden');
+                
+                setTimeout(() => {
+                    if (bootScreen) bootScreen.style.display = 'none';
+                    if (systemContainer) systemContainer.style.display = 'flex';
+                    
+                    window.game = new ArchiveGame();
+                    
+                    console.log('%cАРХИВ №47 ИНИЦИАЛИЗИРОВАН', 'color: #00ff00; font-size: 16px; font-weight: bold;');
+                    console.log('Используйте window.game для доступа к объекту игры');
+                }, 800); // Ожидание окончания CSS transition
+            }, 500);
+        } else {
+            if (bootProgress) bootProgress.style.width = progress + '%';
+        }
+    }, 150);
 });
 
 // Функция сброса игры (если нужно)
