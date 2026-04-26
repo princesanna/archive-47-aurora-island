@@ -3,101 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>АРХИВ №47: ОСТРОВ AURORA</title>
-    <meta name="description" content="Интерактивная детективная игра-расследование с нелинейным сюжетом и системой последствий">
+    <title>ARCHIVE 47 | Premium Case Files</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="description" content="Премиальный архив секретных дел.">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;1,700&family=Special+Elite&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Boot Screen -->
-    <div class="boot-screen" id="bootScreen">
-        <div class="boot-logo" data-text="AURORA_DB">АРХИВ №47</div>
-        <div class="boot-text">ДЕШИФРОВКА АРХИВА...</div>
-        <div class="boot-progress">
-            <div class="boot-progress-fill" id="bootProgress"></div>
-        </div>
-    </div>
-
-    <div class="crt-overlay"></div>
+    <div class="film-grain"></div>
     <div class="scanlines"></div>
 
-    <!-- Notification Banner -->
-    <div class="notification-banner" id="notificationBanner"></div>
-
-    <div class="system-container" id="systemContainer" style="display:none;">
-
-        <aside class="sidebar panel">
-            <div class="sidebar-header">
-                <div class="header-glitch" data-text="AURORA_DB">AURORA_DB</div>
-                <div class="header-subtitle">TOP SECRET / NOFORN</div>
-            </div>
-
-            <!-- Stats -->
-            <div class="stats-panel">
-                <div class="stat-row">
-                    <span class="stat-label">Справедл.</span>
-                    <div class="stat-track"><div class="stat-fill justice" id="justiceBar" style="width:30%"></div></div>
-                    <span class="stat-value" id="justiceVal">30</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Давление</span>
-                    <div class="stat-track"><div class="stat-fill pressure" id="pressureBar" style="width:10%"></div></div>
-                    <span class="stat-value" id="pressureVal">10</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Контроль</span>
-                    <div class="stat-track"><div class="stat-fill control" id="controlBar" style="width:50%"></div></div>
-                    <span class="stat-value" id="controlVal">50</span>
-                </div>
-            </div>
-
-            <div class="file-tree" id="fileTree"></div>
-
-            <div class="sidebar-footer">
-                <div class="sys-info">SYS.V.7.4 // SECURE</div>
-                <button class="btn-reset" id="btnReset">[ СБРОС СИСТЕМЫ ]</button>
-            </div>
-        </aside>
-
-        <main class="content-panel panel">
-            <div class="content-header">
-                <div class="current-file-name" id="currentFileName">_</div>
-                <div class="system-status">
-                    <span class="pulse-dot"></span>
-                    <span>SECURE CONNECTION</span>
-                </div>
-            </div>
-
-            <div class="content-area" id="content">
-                <div class="loading-container">
-                    <div class="loading-text">DECRYPTING...</div>
-                </div>
-            </div>
-
-            <div class="choices-panel" id="choicesPanel"></div>
-
-            <div class="status-bar">
-                <div class="progress-box">
-                    <span id="progress-info">DECRYPT: 0%</span>
-                    <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
-                </div>
-                <div class="time-display" id="timeDisplay">00:00:00</div>
-            </div>
-        </main>
+    <!-- BOOT SCREEN -->
+    <div class="boot-screen" id="bootScreen">
+        <div class="boot-logo">ARCHIVE_47</div>
+        <div class="boot-bar"><div class="boot-progress" id="bootProgress"></div></div>
     </div>
 
-    <div class="ending-modal" id="endingModal">
-        <div class="ending-content panel">
-            <div class="ending-icon">/!\</div>
-            <h2 class="ending-title" id="endingTitle"></h2>
-            <div class="ending-text" id="endingText"></div>
-            <div class="ending-stats" id="endingStats"></div>
-            <button class="ending-button" id="endingButton">[ ИНИЦИАЛИЗАЦИЯ ПЕРЕЗАГРУЗКИ ]</button>
+    <main id="game-container" class="hidden">
+        <!-- Hub Screen -->
+        <section id="hub-screen" class="screen">
+            <header class="hub-header">
+                <h1>ARCHIVE 47</h1>
+                <p>ЦЕНТРАЛЬНЫЙ УЗЕЛ УПРАВЛЕНИЯ ДАННЫМИ</p>
+            </header>
+
+            <div class="case-grid">
+                <div class="case-card" onclick="game.startCase('aurora')">
+                    <div class="case-id">FILE_01</div>
+                    <h2 class="case-title">ОСТРОВ АВРОРА</h2>
+                    <div class="case-status status-available">ДОСТУПНО</div>
+                    <p class="case-desc">Расследование массового исчезновения персонала на удаленном научном комплексе. Классический детектив.</p>
+                </div>
+
+                <div class="case-card" onclick="game.startCase('chains')">
+                    <div class="case-id">FILE_02</div>
+                    <h2 class="case-title">ЗОЛОТЫЕ ЦЕПИ</h2>
+                    <div class="case-status status-new">ОБНОВЛЕНО: V2.0</div>
+                    <p class="case-desc">Шпионский триллер. Проникновение на закрытую вечеринку Магната. Высокие ставки, социальный стелс.</p>
+                </div>
+            </div>
+
+            <footer class="hub-footer">
+                <button class="btn-reset-global" onclick="game.fullSystemReset()">[ ПОЛНЫЙ СБРОС СИСТЕМЫ ]</button>
+            </footer>
+        </section>
+
+        <!-- Investigation Screen -->
+        <section id="investigation-screen" class="screen hidden">
+            <div id="game-notification" class="notification-overlay"></div>
+            <div id="danger-vignette" class="danger-vignette hidden"></div>
+            
+            <aside class="game-sidebar">
+                <div class="case-info">
+                    <div id="active-case-id" class="active-id">_</div>
+                    <div id="active-case-title" class="active-title">_</div>
+                </div>
+
+                <!-- SIDEBAR: AURORA -->
+                <div id="sidebar-aurora" class="sidebar-mode hidden">
+                    <div class="stats-panel">
+                        <div class="stat-item">
+                            <label>СПРАВЕДЛИВОСТЬ</label>
+                            <div class="progress-track"><div id="justice-bar" class="progress-fill justice"></div></div>
+                        </div>
+                        <div class="stat-item">
+                            <label>ДАВЛЕНИЕ</label>
+                            <div class="progress-track"><div id="pressure-bar" class="progress-fill pressure"></div></div>
+                        </div>
+                    </div>
+                    <div class="file-tree-container">
+                        <h3>АРХИВ ФАЙЛОВ</h3>
+                        <div id="file-tree" class="file-tree"></div>
+                    </div>
+                </div>
+
+                <!-- SIDEBAR: CHAINS -->
+                <div id="sidebar-chains" class="sidebar-mode hidden">
+                    <div class="stats-panel">
+                        <div class="stat-item">
+                            <label>ПАРАНОЙЯ</label>
+                            <div class="progress-track"><div id="paranoia-bar" class="progress-fill paranoia"></div></div>
+                        </div>
+                        <div class="stat-item">
+                            <label>УЛИКИ</label>
+                            <div class="progress-track"><div id="clues-bar" class="progress-fill clues"></div></div>
+                        </div>
+                    </div>
+                    <div class="inventory-panel">
+                        <h3>ИНВЕНТАРЬ</h3>
+                        <ul id="inventory-list"></ul>
+                    </div>
+                </div>
+
+                <div class="sidebar-controls">
+                    <button class="btn-reset" onclick="game.resetCurrentArchive()">[ СБРОСИТЬ ПРОГРЕСС ]</button>
+                    <button class="btn-hub" onclick="game.showHub()">[ ВЕРНУТЬСЯ В ХАБ ]</button>
+                </div>
+            </aside>
+
+            <main class="game-content">
+                <div id="scene-container"></div>
+                <div id="choices-container" class="choices-grid"></div>
+            </main>
         </div>
     </div>
 
     <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered', reg))
+                    .catch(err => console.log('SW Failed', err));
+            });
+        }
+    </script>
 </body>
 </html>

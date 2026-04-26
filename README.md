@@ -1,242 +1,41 @@
-# 🔍 АРХИВ №47: ОСТРОВ AURORA
+# ARCHIVE 47
 
-Интерактивная веб-игра-расследование о тайне острова Aurora. Исследуйте засекреченные документы, раскрывайте скрытые факты и принимайте судьбоносные решения.
+**Archive 47** is a premium, cinematic interactive investigation engine built with vanilla web technologies. It features multiple high-stakes cases, dynamic state management, and a high-end "Obsidian & Neon" aesthetic.
 
-[🌐 Открыть игру](#как-запустить)
+## 🕵️ Active Cases
 
----
+### FILE_01: Aurora Island
+A technical detective case focused on reconstructing events at a remote nuclear facility.
+- **Mechanics**: File tree exploration, redacted text recovery, evidence synthesis.
+- **Theme**: Industrial Mystery / Technical Noir.
 
-## 📖 Описание
+### FILE_02: Golden Chains
+A high-stakes spy thriller involving infiltration, social engineering, and risk management.
+- **Mechanics**: Character-specific skill checks, item-based gating, "Dice Roll" randomization.
+- **Theme**: High-Society Espionage / Noir Thriller.
 
-**АРХИВ №47** — это текстовая приключенческая игра с элементами детектива, выполненная в стиле ретро-терминала. 
+## 🚀 Technology Stack
+- **Frontend**: HTML5, CSS3 (Vanilla), JavaScript (ES6+).
+- **Architecture**: Singleton State Manager (`ArchiveEngine`).
+- **Persistence**: LocalStorage (Service Worker enabled).
+- **PWA**: Fully installable as a standalone app with offline support.
 
-История разворачивается вокруг таинственного исчезновения 42 человек на острове Aurora два года назад. Ты — специальный агент, получивший доступ к засекреченному архиву. Твоя задача: разобраться в обстоятельствах трагедии и принять решение о судьбе архива.
+## ⚙️ Features
+- **Dynamic Randomization**: Success rates for risky actions (70% sneak checks, etc.).
+- **Visual Feedback**: Screen shakes, pulsing stat bars, and danger vignettes.
+- **Notification System**: Real-time feedback for items and file unlocks.
+- **Glassmorphism UI**: High-end aesthetic with `backdrop-filter` and neon accents.
 
-### Ключевые особенности:
-- 🔐 **5 интерактивных документов** с раскрываемыми фактами
-- 🎮 **3 концовки** в зависимости от твоего выбора
-- 🎨 **Современный светлый интерфейс** с ретро-эстетикой
-- 📱 **Полная адаптивность** для всех устройств (ПК, планшеты, смартфоны)
-- ⚡ **Быстрая загрузка** — статический сайт без серверной части
+## 📲 Installation (PWA)
+1. Open the site in your browser (Chrome/Safari recommended).
+2. Click the "Install" or "Add to Home Screen" prompt.
+3. Launch **Archive 47** directly from your app drawer for a full-screen, cinematic experience.
 
----
-
-## 🚀 Как запустить
-
-### Локально (на своем компьютере)
-
-1. **Скачай проект:**
-   ```bash
-   git clone https://github.com/princesanna/archive-47-aurora-island.git
-   cd archive-47-aurora-island
-   ```
-
-2. **Открой в браузере:**
-   - Просто дважды кликни на `index.html`
-   - Или используй локальный сервер (рекомендуется):
-   ```bash
-   # Если у тебя Python 3:
-   python -m http.server 8000
-   
-   # Или если Python 2:
-   python -m SimpleHTTPServer 8000
-   ```
-   Затем открой `http://localhost:8000` в браузере.
-
-### На GitHub Pages (бесплатно)
-
-1. **Форкни репозиторий** на GitHub
-2. **Перейди в Settings → Pages**
-3. **Выбери ветку `main` и папку `/root`**
-4. Сохрани — игра будет доступна по адресу: `https://princesanna.github.io/archive-47-aurora-island/`
+## 🛠️ Development
+To run locally:
+1. Clone the repository.
+2. Serve the directory using any static web server (e.g., `npx serve .`).
+3. Access via `localhost`.
 
 ---
-
-## 🎮 Как играть
-
-1. **Прочитай вводный файл** — получишь контекст истории
-2. **Нажимай на документы** в левой панели — откроются новые файлы
-3. **Клик на зачеркнутые фрагменты** — раскроешь засекреченную информацию
-4. **Выбирай действие** внизу экрана — продвигаешься по сюжету
-5. **Дойди до конца** — увидишь результат своих решений
-
-### Концовки:
-- **Справедливость** — выдать преступника властям
-- **Открытость** — разместить информацию в интернете  
-- **Молчание** — уничтожить все доказательства
-
-Каждый путь приводит к разным последствиям!
-
----
-
-## 📁 Структура файлов
-
-```
-archive-47-aurora-island/
-├── index.html      # Главная страница (HTML5)
-├── style.css       # Стили и адаптивность
-├── app.js          # Логика игры на JavaScript
-├── README.md       # Этот файл
-└── LICENSE         # Лицензия MIT
-```
-
-### Размер проекта:
-- **HTML:** ~3 KB
-- **CSS:** ~15 KB  
-- **JavaScript:** ~25 KB
-- **Итого:** ~43 KB (очень компактно!)
-
----
-
-## 🌐 Совместимость
-
-| Браузер | ПК | Планшет | Мобильный |
-|---------|----|---------|----|
-| Chrome  | ✅ | ✅ | ✅ |
-| Firefox | ✅ | ✅ | ✅ |
-| Safari  | ✅ | ✅ | ✅ |
-| Edge    | ✅ | ✅ | ✅ |
-| Opera   | ✅ | ✅ | ✅ |
-
----
-
-## ⚙️ Технические детали
-
-### Технологии:
-- **HTML5** — семантическая разметка
-- **CSS3** — адаптивный дизайн, анимации, переменные
-- **Vanilla JavaScript** — без фреймворков и зависимостей
-- **LocalStorage** — сохранение прогресса в браузере
-- **Google Fonts** — красивые монотипные шрифты
-
-### Оптимизация:
-- ✅ Статический сайт (работает везде)
-- ✅ Нет внешних зависимостей
-- ✅ Минимальный размер файлов
-- ✅ Работает offline после первой загрузки
-- ✅ SEO-оптимизирован
-
----
-
-## 🎨 Темы оформления
-
-Проект поддерживает темную и светлую темы благодаря CSS переменным:
-
-```css
-:root {
-    --bg-dark: #f8f9fa;        /* Фон */
-    --panel-bg: #ffffff;        /* Панели */
-    --text-main: #2c3e50;       /* Основной текст */
-    --accent: #e74c3c;          /* Красный акцент */
-}
-```
-
-Легко изменить под свой стиль!
-
----
-
-## 🛠️ Разработка и расширение
-
-### Добавить новый документ:
-Отредактируй `app.js` в секции `gameData.files`:
-
-```javascript
-{
-    id: 'myfile.txt',
-    title: 'МОЙ ДОКУМЕНТ',
-    folder: 'ПАПКА',
-    content: `Содержание файла...`,
-    requiredProgress: [],
-    choices: [
-        { text: '► Выбор 1', action: 'unlockFile', target: 'nextfile.txt' }
-    ]
-}
-```
-
-### Изменить цветовую схему:
-Отредактируй переменные в начале `style.css`:
-
-```css
-:root {
-    --accent: #3498db;  /* Изменить на синий */
-    --text-main: #34495e; /* Чуть темнее */
-}
-```
-
----
-
-## 📝 Лицензия
-
-Этот проект распространяется под лицензией **MIT**.
-
-Ты можешь:
-- ✅ Использовать в личных и коммерческих целях
-- ✅ Модифицировать и расширять
-- ✅ Распространять
-- ✅ Размещать на GitHub Pages
-
-При условии:
-- ⚠️ Указать авторство (оригинальный репозиторий)
-- ⚠️ Включить копию лицензии
-
----
-
-## 🤝 Вклад в проект
-
-Идеи приветствуются! Если хочешь улучшить игру:
-
-1. Сделай форк репозитория
-2. Создай ветку (`git checkout -b feature/новая-фишка`)
-3. Закомитьте изменения (`git commit -m 'Добавил новую фишку'`)
-4. Запушь ветку (`git push origin feature/новая-фишка`)
-5. Открой Pull Request
-
----
-
-## 📧 Контакты и поддержка
-
-- 🐛 **Найди баг?** Открой Issue
-- 💡 **Есть идея?** Поделись идеей
-- ⭐ **Нравится проект?** Поставь звезду!
-
----
-
-## 🎬 Скриншоты
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│  АРХИВ №47 — ОСТРОВ AURORA        [● SECURE CONNECTION]    │
-├────────────────┬──────────────────────────────────────────┤
-│ AURORA_DB      │ АРХИВ №47 - ИНИЦИАЛИЗАЦИЯ               │
-│ TOP SECRET     │                                          │
-│                │ > СОЕДИНЕНИЕ УСТАНОВЛЕНО               │
-│ 📁 СИСТЕМА     │ > УРОВЕНЬ ДОСТУПА: АГЕНТ              │
-│ 📄 intro.sys   │                                         │
-│ 📁 ДОКУМЕНТЫ   │ Специальный агент, миру неизвестно...  │
-│ 📁 ПЕРЕПИСКИ   │                                         │
-│                │                                          │
-│ SYS.V.7.4      │ ► [ НАЧАТЬ РАССЛЕДОВАНИЕ ]             │
-│ [СБРОС СИСТЕМЫ]│                                         │
-│                │ DECRYPT: ████████░░ 80%    12:34:56    │
-└────────────────┴──────────────────────────────────────────┘
-```
-
----
-
-## 🌟 История обновлений
-
-### v2.0.0 (Текущая версия)
-- ✨ Светлая тема для лучшей читаемости
-- 📱 Полная мобильная оптимизация
-- ⚡ Улучшена производительность
-- 📖 Подробная документация
-- 🎨 Обновлен CSS для совместимости
-
-### v1.0.0
-- 🎮 Основная версия с 5 документами
-- 🎬 3 интерактивные концовки
-- 💾 Сохранение прогресса в LocalStorage
-
----
-
-**Спасибо за игру! Расследование началось... 🔍**
+*Created with precision. Data is power. Truth is optional.*
