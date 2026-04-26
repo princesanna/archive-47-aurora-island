@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>АРХИВ №47: ОСТРОВ AURORA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="crt-overlay"></div>
+    <div class="scanlines"></div>
+
+    <div class="system-container">
+        
+        <aside class="sidebar panel">
+            <div class="sidebar-header">
+                <div class="header-glitch" data-text="AURORA_DB">AURORA_DB</div>
+                <div class="header-subtitle">TOP SECRET / NOFORN</div>
+            </div>
+            
+            <div class="file-tree" id="fileTree">
+                <!-- Файлы загружаются JS -->
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="sys-info">SYS.V.7.4 // ONLINE</div>
+                <button class="btn-reset" onclick="resetGame()">[ СБРОС СИСТЕМЫ ]</button>
+            </div>
+        </aside>
+
+        <main class="content-panel panel">
+            <div class="content-header">
+                <div class="current-file-name" id="currentFileName">_</div>
+                <div class="system-status">
+                    <span class="pulse-dot"></span>
+                    <span>SECURE CONNECTION</span>
+                </div>
+            </div>
+
+            <div class="content-area" id="content">
+                <div class="loading-container">
+                    <div class="spinner"></div>
+                    <div class="loading-text">DECRYPTING...</div>
+                </div>
+            </div>
+
+            <div class="choices-panel" id="choicesPanel">
+                <!-- Кнопки действий -->
+            </div>
+
+            <div class="status-bar">
+                <div class="progress-box">
+                    <span id="progress-info">DECRYPT: 0%</span>
+                    <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
+                </div>
+                <div class="time-display" id="timeDisplay">00:00:00</div>
+            </div>
+        </main>
+    </div>
+
+    <div class="ending-modal" id="endingModal">
+        <div class="ending-content panel">
+            <div class="ending-icon">/!\</div>
+            <h2 class="ending-title" id="endingTitle"></h2>
+            <div class="ending-text" id="endingText"></div>
+            <button class="btn-action ending-button" onclick="resetGame()">[ ИНИЦИАЛИЗАЦИЯ ПЕРЕЗАГРУЗКИ ]</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
