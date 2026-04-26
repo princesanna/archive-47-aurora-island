@@ -26,8 +26,9 @@ body {
     background: var(--bg-obsidian);
     color: var(--text-pure);
     font-family: var(--font-display);
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto; /* Allow scrolling by default */
     position: relative;
 }
 
@@ -80,7 +81,14 @@ body::after {
 /* === HUB SCREEN === */
 #game-container { height: 100%; width: 100%; display: flex; justify-content: center; align-items: center; }
 
-.screen { width: 100%; max-width: 1400px; height: 100%; padding: 60px; display: flex; flex-direction: column; }
+.screen { 
+    width: 100%; 
+    max-width: 1400px; 
+    min-height: 100vh; 
+    padding: 60px 20px; 
+    display: flex; 
+    flex-direction: column; 
+}
 
 .hub-header { text-align: center; margin-bottom: 80px; }
 .hub-header h1 { 
@@ -399,13 +407,17 @@ body::after {
 /* === OS INTERFACE STYLES (NEW) === */
 
 #os-screen {
-    position: relative;
-    width: 100%;
+    position: fixed; /* Overlay everything */
+    top: 0;
+    left: 0;
+    width: 100vw;
     height: 100vh;
     background: #0a0a0a;
     overflow: hidden;
-    color: #00ff41; /* Matrix/Terminal Green */
+    color: #00ff41;
     font-family: 'JetBrains Mono', monospace;
+    z-index: 5000;
+    padding: 0; /* Remove default screen padding */
 }
 
 .os-background {

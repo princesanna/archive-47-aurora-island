@@ -216,6 +216,11 @@ class ArchiveEngine {
             this.gameTimer.start();
         }
         
+        // Автоматически открываем Терминал при запуске для удобства
+        if (window.osCore) {
+            window.osCore.openWindow('terminal-window-wrapper');
+        }
+        
         this.notify('SYSTEM BOOT SUCCESSFUL', 'success');
     }
 
