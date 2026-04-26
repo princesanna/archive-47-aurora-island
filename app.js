@@ -170,6 +170,7 @@ class ArchiveEngine {
         this.timer = null;
         this.terminal = null;
         this.deduction = null;
+        this.explorer = null;
         this.gameTimer = null;
         this.init();
     }
@@ -198,30 +199,66 @@ class ArchiveEngine {
     }
 
     showOS() {
+        this.bootOS();
+    }
+
+    bootOS() {
+        const overlay = document.getElementById('os-boot-overlay');
+        const log = document.getElementById('boot-log');
+        overlay.classList.remove('hidden');
+        log.innerHTML = '';
+        
+        const lines = [
+            "ARCHIVE_47 BIOS v4.0.7",
+            "Checking memory... 640KB OK",
+            "Initializing kernel...",
+            "Loading terminal.exe...",
+            "Loading explorer.sys...",
+            "Connecting to neural_net... SUCCESS",
+            "WELCOME, AGENT."
+        ];
+
+        let i = 0;
+        const it = setInterval(() => {
+            const l = document.createElement('div');
+            l.className = 'boot-line';
+            l.textContent = lines[i];
+            log.appendChild(l);
+            i++;
+            if (i >= lines.length) {
+                clearInterval(it);
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    this.finishOSBoot();
+                }, 1000);
+            }
+        }, 300);
+    }
+
+    finishOSBoot() {
         this.state.mode = 'os';
         document.getElementById('hub-screen').classList.add('hidden');
         document.getElementById('investigation-screen').classList.add('hidden');
         document.getElementById('os-screen').classList.remove('hidden');
 
-        // Инициализируем модули только один раз
         if (!this.terminal) {
             this.terminal = new Terminal('terminal-history', 'terminal-input');
         }
         if (!this.deduction) {
             this.deduction = new DeductionBoard('deduction-board');
         }
+        if (!this.explorer) {
+            this.explorer = new FileExplorer('explorer-content');
+        }
         if (!this.gameTimer) {
             this.gameTimer = new GameTimer('game-clock');
-            window.gameTimer = this.gameTimer; // Для доступа из терминала
+            window.gameTimer = this.gameTimer;
             this.gameTimer.start();
         }
         
-        // Автоматически открываем Терминал при запуске для удобства
         if (window.osCore) {
             window.osCore.openWindow('terminal-window-wrapper');
         }
-        
-        this.notify('SYSTEM BOOT SUCCESSFUL', 'success');
     }
 
     updateHubStatus() {

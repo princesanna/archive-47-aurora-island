@@ -821,3 +821,73 @@ body::after {
 .window-content::-webkit-scrollbar-thumb:hover {
     background: #00ff41;
 }
+
+/* === EXPLORER & BOOT STYLES (NEW) === */
+
+.explorer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 20px;
+    padding: 10px;
+}
+
+.explorer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 10px;
+    transition: background 0.2s;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.explorer-item:hover {
+    background: rgba(0, 242, 255, 0.1);
+}
+
+.explorer-item .item-icon {
+    font-size: 2.5rem;
+}
+
+.explorer-item .item-name {
+    font-size: 0.7rem;
+    word-break: break-all;
+    color: #eee;
+}
+
+/* BOOT OVERLAY */
+.boot-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 9999;
+    padding: 40px;
+    color: #00ff41;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.boot-line {
+    margin-bottom: 5px;
+    animation: fadeIn 0.1s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.explorer-theme {
+    background: #111;
+    background-image: 
+        linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+}

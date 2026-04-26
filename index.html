@@ -156,13 +156,37 @@
                         <div class="icon-visual">📟</div>
                         <div class="icon-label">Terminal</div>
                     </div>
+                    <div class="desktop-icon" onclick="osCore.openWindow('explorer-window-wrapper')">
+                        <div class="icon-visual">📁</div>
+                        <div class="icon-label">Files</div>
+                    </div>
                     <div class="desktop-icon" onclick="osCore.openWindow('deduction-window-wrapper')">
                         <div class="icon-visual">🗂️</div>
                         <div class="icon-label">Board</div>
                     </div>
                 </div>
 
+                <!-- BIOS BOOT OVERLAY -->
+                <div id="os-boot-overlay" class="boot-overlay hidden">
+                    <div id="boot-log"></div>
+                </div>
+
                 <div class="os-windows-container">
+                    <!-- File Explorer Window -->
+                    <div class="os-window hidden" id="explorer-window-wrapper">
+                        <div class="window-header">
+                            <span class="window-title">EXPLORER.SYS</span>
+                            <div class="window-controls">
+                                <span onclick="osCore.closeWindow('explorer-window-wrapper')">×</span>
+                            </div>
+                        </div>
+                        <div class="window-content explorer-theme">
+                            <div id="explorer-content" class="explorer-grid">
+                                <!-- Folders and files -->
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Terminal Window -->
                     <div class="os-window hidden" id="terminal-window-wrapper">
                         <div class="window-header">
@@ -207,6 +231,7 @@
     <script src="js/terminal.js"></script>
     <script src="js/deduction.js"></script>
     <script src="js/timer.js"></script>
+    <script src="js/explorer.js"></script>
     <script src="js/os-core.js"></script>
     <script src="app.js"></script>
     <script>
