@@ -1,303 +1,160 @@
 /**
- * ARCHIVE 47 | КОРНЕВОЙ ДВИЖОК
+ * ARCHIVE 47 | ГЛОБАЛЬНЫЙ НАРРАТИВНЫЙ СИНТЕЗ
+ * Версия: 3.0 (Масштабная трилогия)
  */
 
+// Глобальное состояние сессии, сохраняющееся между файлами
+const SESSION = {
+    character: null,
+    inventory: [],
+    clues: 0,
+    auroraComplete: false,
+    chainsComplete: false
+};
+
 const INITIAL_AURORA_STATE = {
-    unlockedFiles: ['intro.sys'],
-    currentFile: 'intro.sys',
-    justice: 30,
-    pressure: 10
+    currentNode: 'intro',
+    evidenceFound: []
 };
 
 const INITIAL_CHAINS_STATE = {
-    character: null,
-    inventory: [],
     paranoia: 0,
     clues: 0,
-    currentNode: 'character_select'
+    currentNode: 'intro'
 };
 
 const INITIAL_PHANTOM_STATE = {
     integrity: 100,
     sync: 0,
-    currentNode: 'character_select'
+    currentNode: 'start'
 };
 
+// --- FILE_01: ОСТРОВ АВРОРА (ПЕРЕРАБОТАНО В КВЕСТ) ---
 const auroraData = {
-    files: [
-        {
-            id: 'intro.sys',
-            title: 'АРХИВ №47 - ИНИЦИАЛИЗАЦИЯ',
-            folder: 'СИСТЕМА',
-            content: `> СОЕДИНЕНИЕ УСТАНОВЛЕНО\n> АРХИВ №47: ОСТРОВ AURORA\n> СТАТУС: ПОЛНОСТЬЮ РАССЕКРЕЧЕНО\n> УРОВЕНЬ ДОСТУПА: АГЕНТ\n\nСпециальный агент, миру неизвестно, что произошло на острове Aurora два года назад.\nМассовое исчезновение 42 человек. Все пути ведут в один архив.`,
-            choices: [{ text: '► НАЧАТЬ РАССЛЕДОВАНИЕ', next: 'memo_01.txt', unlock: 'memo_01.txt' }]
-        },
-        {
-            id: 'memo_01.txt',
-            title: 'СЛУЖЕБНАЯ ЗАПИСКА',
-            folder: 'ДОКУМЕНТЫ',
-            content: `СЛУЖЕБНАЯ ЗАПИСКА\nОт: Детектив Александр Морозов\n\nЯ нашел связь между исчезновениями на Aurora и финансовым отделом.\n<span class="redacted">они исчезали так же, как и люди</span>.`,
-            choices: [
-                { text: '► ПРОВЕРИТЬ ТРАНЗАКЦИИ', next: 'transactions.log', unlock: 'transactions.log' },
-                { text: '► ПЕРЕЙТИ К ПЕРЕПИСКЕ', next: 'chat_001.log', unlock: 'chat_001.log' }
-            ]
-        },
-        {
-            id: 'transactions.log',
-            title: 'БАНКОВСКИЕ ТРАНЗАКЦИИ',
-            folder: 'ДОКУМЕНТЫ',
-            content: `ОТЧЕТ О ФИНАНСОВЫХ ОПЕРАЦИЯХ\nСчет: AURORA-GOV-7734\n\n[2024-10-01] ⚠ ТЕХНИЧЕСКАЯ ОШИБКА НА ATOM-01\nСотрудников на месте: 42 человека.`,
-            choices: [{ text: '► ПЕРЕПИСКА САФИНА', next: 'chat_001.log', unlock: 'chat_001.log' }]
-        },
-        {
-            id: 'chat_001.log',
-            title: 'ПЕРЕХВАЧЕННАЯ ПЕРЕПИСКА',
-            folder: 'ПЕРЕПИСКИ',
-            content: `Участники: ФИНАНСИСТ + НЕИЗВЕСТНЫЙ\n\nФИНАНСИСТ: После этого <span class="redacted">они должны исчезнуть</span>.`,
-            choices: [{ text: '► МЕДИЦИНСКИЕ ЗАПИСИ', next: 'medical.txt', unlock: 'medical.txt' }]
-        },
-        {
-            id: 'medical.txt',
-            title: 'МЕДИЦИНСКИЕ ОТЧЕТЫ',
-            folder: 'ДОКУМЕНТЫ',
-            content: `КОМПЛЕКСНЫЙ МЕДИЦИНСКИЙ ОТЧЕТ\nВ крови жертв обнаружены следы <span class="redacted">снотворного (диазепам)</span>.`,
-            choices: [{ text: '► ФИНАЛЬНОЕ РЕШЕНИЕ', next: 'final.exe', unlock: 'final.exe' }]
-        },
-        {
-            id: 'final.exe',
-            title: 'ФИНАЛЬНОЕ РЕШЕНИЕ',
-            folder: 'СИСТЕМА',
-            content: `ВЫ ОБЛАДАЕТЕ ПОЛНОЙ ИНФОРМАЦИЕЙ.\nВыберите судьбу архива:\n1. СПРАВЕДЛИВОСТЬ\n2. МОЛЧАНИЕ`,
-            choices: [
-                { text: '► СПРАВЕДЛИВОСТЬ', next: 'end_justice', effect: (s) => s.justice = 100 },
-                { text: '► МОЛЧАНИЕ', next: 'end_silence', effect: (s) => s.pressure = 100 }
-            ]
-        },
-        { id: 'end_justice', title: 'ФИНАЛ: СПРАВЕДЛИВОСТЬ', folder: 'АРХИВ', content: 'Преступники наказаны. Вы герой.', choices: [] },
-        { id: 'end_silence', title: 'ФИНАЛ: МОЛЧАНИЕ', folder: 'АРХИВ', content: 'Вы богаты, но совесть не дает покоя.', choices: [] }
-    ]
-};
-
-const chainsData = {
     nodes: {
-        'character_select': {
-            text: "ВЫБЕРИТЕ ЛИЧНОСТЬ ДЛЯ ПРОНИКНОВЕНИЯ:\n\n1. ЖУРНАЛИСТ — имеет скрытый диктофон. Бонус к поиску улик.\n2. ЗВЕЗДА — имеет VIP-пропуск. Легкий доступ в закрытые зоны.\n3. БЫВШИЙ ОХРАННИК — имеет отмычки. Легко вскрывает замки.",
-            choices: [
-                { text: "ВЫБРАТЬ: ЖУРНАЛИСТ", next: 'intro', effect: (s) => { s.character = 'Журналист'; s.inventory.push('Диктофон'); } },
-                { text: "ВЫБРАТЬ: ЗВЕЗДА", next: 'intro', effect: (s) => { s.character = 'Звезда'; s.inventory.push('VIP-пропуск'); } },
-                { text: "ВЫБРАТЬ: ОХРАННИК", next: 'intro', effect: (s) => { s.character = 'Охранник'; s.inventory.push('Отмычки'); } }
-            ]
-        },
         'intro': {
-            text: "Особняк Магната утопает в роскоши. В воздухе пахнет дорогим парфюмом и опасностью. Вы проходите через главный вход.\n\nВаша цель — найти список гостей закрытой секции.",
+            text: "ВЫ ПРИБЫЛИ НА ОСТРОВ АВРОРА.\n\nРуины научного комплекса 'ATOM-01' возвышаются над берегом как скелет доисторического чудовища. Здесь два года назад исчезли 42 человека. У вас есть приказ — найти истину.\n\nКак вы начнете поиск?",
             choices: [
-                { text: "Подняться на второй этаж (Скрытность)", next: 'search' },
-                { text: "Пройти к бару (Социализация)", next: 'bar' },
-                { text: "Осмотреть фуршетные столы", next: 'buffet', effect: (s) => { s.inventory.push('Снотворное'); game.notify('Вы нашли СНОТВОРНОЕ', 'info'); } }
+                { text: "Искать свидетельские показания (Журналист)", next: 'aurora_jour_interviews', condition: (s) => SESSION.character === 'Журналист' },
+                { text: "Запросить секретные архивы правительства (Звезда)", next: 'aurora_star_archives', condition: (s) => SESSION.character === 'Звезда' },
+                { text: "Взломать периметр комплекса (Охранник)", next: 'aurora_guard_breach', condition: (s) => SESSION.character === 'Охранник' },
+                { text: "Осмотреть береговую линию", next: 'aurora_shore' }
             ]
         },
-        'buffet': {
-            text: "Вы делаете вид, что выбираете закуски, и незаметно прячете в карман пузырек со снотворным. Это может пригодиться.\n\nКуда теперь?",
+
+        // Путь Журналиста
+        'aurora_jour_interviews': {
+            text: "Вы находите старого смотрителя маяка. Его глаза полны ужаса. 'Они не умерли', шепчет он. 'Они просто... перестали быть здесь'.",
             choices: [
-                { text: "На второй этаж", next: 'search' },
-                { text: "К барной стойке", next: 'bar' }
+                { text: "Записать его слова (Диктофон)", next: 'aurora_clue_1', effect: () => SESSION.clues += 20 },
+                { text: "Показать ему фото пропавших", next: 'aurora_photo_match' }
             ]
         },
-        'search': { 
-            text: "Второй этаж патрулируется. Вы видите массивную дубовую дверь кабинета.", 
-            choices: [
-                { text: "Проскользнуть мимо патруля", next: 'check_lock', chance: 70, failNext: 'caught_interrogation', failEffect: (s) => s.paranoia += 30 },
-                { text: "Подлить снотворное в бокал охранника", next: 'sleep_guard', condition: (s) => s.inventory.includes('Снотворное') },
-                { text: "Спрятаться в тени, ждать", next: 'hide', effect: (s) => s.clues += 5 }
-            ] 
+        'aurora_clue_1': {
+            text: "Слова старика подтверждают теорию о портале. Вы находите обрывок кода: 'ALPHA-77'. Это может пригодиться позже.",
+            choices: [{ text: "Продолжить", next: 'aurora_final', effect: () => SESSION.inventory.push('Код ALPHA-77') }]
         },
-        'caught_interrogation': {
-            text: "ОХРАННИК: 'Эй! Что вы здесь делаете? Этот этаж закрыт для гостей!'\n\nОн кладет руку на кобуру. Нужно срочно что-то придумать.",
+
+        // Путь Звезды
+        'aurora_star_archives': {
+            text: "Используя свои связи в министерстве, вы получаете зашифрованную папку. В ней отчеты о странных выбросах энергии за неделю до инцидента.",
             choices: [
-                { text: "Блефовать: 'Я ищу уборную'", next: 'check_lock', chance: 40, failNext: 'arrest', failEffect: (s) => s.paranoia += 50 },
-                { text: "Предъявить VIP-пропуск", next: 'check_lock', condition: (s) => s.character === 'Звезда', effect: (s) => game.notify('Он извиняется и пропускает вас', 'info') },
-                { text: "Попробовать оглушить его", next: 'check_lock', chance: 20, failNext: 'arrest', failEffect: (s) => s.paranoia = 100 }
+                { text: "Анализировать финансовые потоки", next: 'aurora_finance', effect: () => SESSION.clues += 30 },
+                { text: "Найти список инвесторов", next: 'aurora_clue_2' }
             ]
         },
-        'arrest': { text: "Вас грубо хватают и уводят в подвал. Ваше расследование бесславно завершено.", choices: [{ text: "ЗАНОВО", next: 'reset' }] },
-        'sleep_guard': {
-            text: "Вы мастерски отвлекаете охранника и добавляете препарат в его напиток. Спустя пару минут он начинает клевать носом.",
-            choices: [{ text: "Обыскать спящего охранника", next: 'rob_guard', effect: (s) => { s.inventory.push('Ключ-карта'); game.notify('Получена КЛЮЧ-КАРТА', 'info'); } }]
+        'aurora_clue_2': {
+            text: "В списке инвесторов вы видите фамилию Магната из FILE_02. Теперь связь очевидна.",
+            choices: [{ text: "Забрать документы", next: 'aurora_final', effect: () => { SESSION.inventory.push('Досье Магната'); SESSION.clues += 20; } }]
         },
-        'rob_guard': {
-            text: "Теперь у вас есть доступ к служебным помещениям.",
-            choices: [{ text: "Войти в кабинет", next: 'hack' }]
-        },
-        'check_lock': {
-            text: "Замок сложный. Без инструментов его не вскрыть тихо.",
+
+        // Путь Охранника
+        'aurora_guard_breach': {
+            text: "Вы обходите датчики движения и вскрываете дверь в блок управления. Внутри пахнет озоном и горелой проводкой.",
             choices: [
-                { text: "Использовать отмычки (Охранник)", next: 'safe_mini_1', condition: (s) => s.character === 'Охранник' },
-                { text: "Использовать ключ-карту", next: 'hack', condition: (s) => s.inventory.includes('Ключ-карта') },
-                { text: "Попробовать выбить (Шумно)", next: 'kick', effect: (s) => s.paranoia += 40 },
-                { text: "Вернуться назад", next: 'intro' }
+                { text: "Скачать логи безопасности", next: 'aurora_logs', chance: 85, failNext: 'aurora_alarm' },
+                { text: "Осмотреть реакторный зал", next: 'aurora_reactor' }
             ]
         },
-        'safe_mini_1': {
-            text: "ВЗЛОМ: ШАГ 1/3\nВы вставляете отмычку. Чувствуете три пина. Какой нажать первым?",
-            choices: [
-                { text: "Верхний левый", next: 'safe_mini_2', chance: 90, failNext: 'safe_mini_1', failEffect: (s) => s.paranoia += 10 },
-                { text: "Нижний", next: 'safe_mini_2', chance: 50, failNext: 'safe_mini_1', failEffect: (s) => s.paranoia += 20 }
-            ]
+        'aurora_logs': {
+            text: "Логи показывают, что система безопасности была отключена ИЗНУТРИ за минуту до исчезновения. Кто-то помог им.",
+            choices: [{ text: "Забрать ключ-карту доступа", next: 'aurora_final', effect: () => SESSION.inventory.push('Мастер-ключ') }]
         },
-        'safe_mini_2': {
-            text: "ВЗЛОМ: ШАГ 2/3\nВторой пин сопротивляется. Нужно больше усилия?",
-            choices: [
-                { text: "Нажать плавно", next: 'safe_mini_3', chance: 80, failNext: 'safe_mini_1', failEffect: (s) => s.paranoia += 15 },
-                { text: "Нажать резко", next: 'safe_mini_3', chance: 40, failNext: 'safe_mini_1', failEffect: (s) => s.paranoia += 30 }
-            ]
-        },
-        'safe_mini_3': {
-            text: "ВЗЛОМ: ШАГ 3/3\nПоследний поворот.",
-            choices: [
-                { text: "По часовой стрелке", next: 'hack', chance: 95, failNext: 'safe_mini_1', failEffect: (s) => s.paranoia += 40 },
-                { text: "Против часовой", next: 'hack', chance: 30, failNext: 'safe_mini_1', failEffect: (s) => s.paranoia += 50 }
-            ]
-        },
-        'bar': { 
-            text: "У бара вы замечаете мужчину в дорогом костюме, который нервно теребит запонку. Это личный помощник Магната.", 
-            choices: [
-                { text: "Подслушать разговор (Диктофон)", next: 'record', condition: (s) => s.character === 'Журналист' },
-                { text: "Подойти и представиться", next: 'talk_mini_1', chance: 60, failNext: 'talk_fail', failEffect: (s) => s.paranoia += 20 },
-                { text: "Пройти в VIP-зону (VIP-пропуск)", next: 'vip_lounge', condition: (s) => s.character === 'Звезда' }
-            ] 
-        },
-        'talk_mini_1': {
-            text: "МАНИПУЛЯЦИЯ: ШАГ 1/2\nПомощник смотрит на вас с подозрением. 'Мы знакомы?'",
-            choices: [
-                { text: "Я от службы кейтеринга", next: 'talk_mini_2', condition: (s) => s.inventory.includes('Снотворное'), chance: 80, failNext: 'talk_fail' },
-                { text: "Я старый друг Магната", next: 'talk_mini_2', chance: 30, failNext: 'talk_fail' }
-            ]
-        },
-        'talk_mini_2': {
-            text: "МАНИПУЛЯЦИЯ: ШАГ 2/2\n'Кейтеринг? Почему вы не в форме?'",
-            choices: [
-                { text: "У меня спецзадание от Магната", next: 'talk_success', chance: 70, failNext: 'talk_fail' },
-                { text: "Моя форма испачкалась", next: 'talk_success', chance: 20, failNext: 'talk_fail' }
-            ]
-        },
-        'talk_success': {
-            text: "Помощник расслабляется. 'Ладно, берите этот ключ от подсобки и не мешайтесь'.",
-            choices: [{ text: "Взять ключ", next: 'follow', effect: (s) => { s.inventory.push('Ключ-карта'); s.clues += 20; } }]
-        },
-        'talk_fail': { text: "Его подозрения только усилились. Охрана теперь следит за вами.", choices: [{ text: "Уйти", next: 'intro' }] },
-        'record': {
-            text: "Диктофон в кармане фиксирует шепот: '...груз с Авроры прибудет в полночь. Остров должен оставаться закрытым'.",
-            choices: [{ text: "Продолжить сбор данных", next: 'follow', effect: (s) => s.clues += 25 }]
-        },
-        'vip_lounge': {
-            text: "Охрана кланяется, видя ваш пропуск. Внутри VIP-зала вы видите Магната, склонившегося над картой островов.",
-            choices: [
-                { text: "Сфотографировать карту незаметно", next: 'map', chance: 75, failNext: 'magnate_office', failEffect: (s) => s.paranoia += 20 },
-                { text: "Подойти к нему", next: 'magnate_office' }
-            ]
-        },
-        'follow': {
-            text: "Вы следуете за официантом в служебный коридор. Там вы находите пост охраны с мониторами.",
-            choices: [
-                { text: "Использовать USB-флешку", next: 'room', condition: (s) => s.inventory.includes('USB-флешка'), chance: 90, failNext: 'escape_run' },
-                { text: "Обыскать стол охранника", next: 'search_desk', effect: (s) => { s.inventory.push('USB-флешка'); game.notify('Найдена ФЛЕШКА', 'info'); } },
-                { text: "Наблюдать со стороны", next: 'they', effect: (s) => s.clues += 10 }
-            ]
-        },
-        'search_desk': {
-            text: "Вы находите зашифрованную флешку. Это может содержать доказательства преступлений на Авроре.",
-            choices: [{ text: "Вернуться в коридор", next: 'follow' }]
-        },
-        'hack': { 
-            text: "Щелчок — и вы внутри. Кабинет завален документами. На столе лежит список гостей с пометками 'ЛИКВИДИРОВАТЬ'.", 
-            choices: [{ text: "Забрать список", next: 'desk', effect: (s) => s.clues += 40 }] 
-        },
-        'kick': {
-            text: "Удар! Дверь открывается, но срабатывает сигнализация. У вас есть секунды.",
-            choices: [{ text: "Хватать бумаги и бежать", next: 'escape_run', effect: (s) => s.paranoia += 50 }]
-        },
-        'desk': { 
-            text: "Вы нашли ключ к разгадке. Но вдруг дверь открывается. Это сам Магнат. С пистолетом.", 
-            choices: [{ text: "Предложить сделку", next: 'confrontation' }, { text: "Напасть", next: 'attack' }] 
-        },
-        'magnate_office': {
-            text: "Магнат оборачивается. 'А, это вы. Я ожидал вашего визита. Вы слишком любопытны для своего же блага'.",
-            choices: [{ text: "Потребовать ответов", next: 'confrontation' }]
-        },
-        'confrontation': {
-            text: "Магнат усмехается. 'Аврора была лишь началом. На кону миллиарды. Что вы выберете: истину или жизнь?'",
-            choices: [
-                { text: "Опубликовать данные (Требует 60 улик)", next: 'end_exposure', condition: (s) => s.clues >= 60, chance: 80, failNext: 'end_escape' },
-                { text: "Взять деньги и молчать", next: 'end_bribe' },
-                { text: "Попробовать сбежать", next: 'end_escape', chance: 50, failNext: 'arrest' }
-            ]
-        },
-        'attack': { text: "Вы бросаетесь на него, но охрана врывается в комнату раньше. Вы проиграли.", choices: [{ text: "ЗАНОВО", next: 'reset' }] },
-        'room': { text: "Вы подключаете флешку. На экране мелькают записи с камер на Авроре. Вы видите, как людей погружают в контейнеры.", choices: [{ text: "Забрать данные и уйти", next: 'confrontation', effect: (s) => s.clues += 50 }] },
-        'they': { text: "'Они' — это те, кто спонсирует этот архив. Вы слишком глубоко зашли.", choices: [{ text: "Продолжить", next: 'confrontation' }] },
-        'map': { text: "Карта раскрывает координаты секретной лаборатории. Теперь у вас есть всё.", choices: [{ text: "Уйти незаметно", next: 'confrontation' }] },
-        'end_exposure': { text: "ФИНАЛ: РАЗОБЛАЧЕНИЕ\n\nВы передали данные прессе. Акции Магната рухнули.", choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] },
-        'end_bribe': { text: "ФИНАЛ: ЗОЛОТАЯ КЛЕТКА\n\nВы получили чек на 10 миллионов. Вы соучастник.", choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] },
-        'end_escape': { text: "ФИНАЛ: ТЕНЬ\n\nВы сбежали, но улик недостаточно. Магнат всё еще на свободе.", choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] },
-        'escape_run': { text: "Вы выпрыгиваете в окно, преследуемый охраной.", choices: [{ text: "Скрыться в ночи", next: 'end_escape' }] }
+
+        'aurora_shore': { text: "На берегу вы находите выброшенный на песок пропуск одного из сотрудников. Он выглядит так, будто пролежал в кислоте.", choices: [{ text: "Вернуться к входу", next: 'intro' }] },
+        'aurora_alarm': { text: "Сработала ловушка! Автоматические турели активированы. Вам пришлось бежать, бросив всё.", choices: [{ text: "ПОПРОБОВАТЬ СНОВА", next: 'reset' }] },
+        
+        'aurora_final': {
+            text: "Первый этап завершен. У вас достаточно данных, чтобы понять — Аврора была лишь полигоном. Настоящая игра разворачивается в особняке Магната.\n\nFILE_01 ЗАВЕРШЕН.",
+            choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return', effect: () => SESSION.auroraComplete = true }]
+        }
     }
 };
 
+// --- FILE_02: ЗОЛОТЫЕ ЦЕПИ (ОБНОВЛЕНО С УЧЕТОМ FILE_01) ---
+const chainsData = {
+    nodes: {
+        'intro': {
+            text: "ВТОРОЙ ЭТАП: ОСОБНЯК МАГНАТА.\n\nВы стоите перед массивными воротами. Атмосфера праздника скрывает запах крови и заговора.",
+            choices: [
+                { text: "Использовать 'Код ALPHA-77'", next: 'chains_secret_door', condition: () => SESSION.inventory.includes('Код ALPHA-77') },
+                { text: "Предъявить 'Мастер-ключ'", next: 'chains_guard_hack', condition: () => SESSION.inventory.includes('Мастер-ключ') },
+                { text: "Проникнуть стандартным путем", next: 'chains_standard' }
+            ]
+        },
+        'chains_secret_door': {
+            text: "Код из FILE_01 открывает потайной люк в саду. Вы оказываетесь прямо в подвале, минуя охрану.",
+            choices: [{ text: "Обыскать подвал", next: 'chains_basement', effect: (s) => s.clues += 50 }]
+        },
+        'chains_standard': {
+            text: "Вы проходите через главный вход. Охрана подозрительно осматривает гостей.",
+            choices: [
+                { text: "Блефовать (Журналист)", next: 'chains_jour_path', condition: () => SESSION.character === 'Журналист' },
+                { text: "Очаровать (Звезда)", next: 'chains_star_path', condition: () => SESSION.character === 'Звезда' },
+                { text: "Отвлечь (Охранник)", next: 'chains_guard_path', condition: () => SESSION.character === 'Охранник' }
+            ]
+        },
+        // ... (Пути персонажей из предыдущей итерации, но с интеграцией Legacy)
+        'chains_jour_path': { text: "Вы проходите как пресса. Камеры здесь запрещены, но ваш диктофон готов.", choices: [{ text: "Искать кабинет", next: 'chains_office' }] },
+        'chains_star_path': { text: "Вы — душа компании. Магнат лично приветствует вас.", choices: [{ text: "Соблазнить Магната", next: 'chains_office' }] },
+        'chains_guard_path': { text: "Вы знаете, где стоят датчики. Вы — тень в этом доме.", choices: [{ text: "Взломать систему", next: 'chains_office' }] },
+        
+        'chains_office': {
+            text: "В кабинете вы находите подтверждение: Магнат строит ВТОРОЙ ЯКОРЬ прямо под особняком. Аврора повторяется.",
+            choices: [{ text: "Забрать данные и бежать", next: 'chains_final' }]
+        },
+        'chains_final': {
+            text: "Вы получили всё, что нужно. Но Магнат знает ваше лицо. Время уходить в цифровую тень.\n\nFILE_02 ЗАВЕРШЕН.",
+            choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return', effect: () => SESSION.chainsComplete = true }]
+        }
+    }
+};
+
+// --- FILE_03: ФАНТОМНЫЙ ПРОТОКОЛ (ГЛОБАЛЬНЫЙ ФИНАЛ) ---
 const phantomData = {
     nodes: {
-        'character_select': {
-            text: "ПОДКЛЮЧЕНИЕ К ПРИЗРАЧНОМУ УЗЛУ...\n\nВыберите метод синхронизации:\n1. КРАКЕН — агрессивный взлом. Высокая скорость, риск повреждения.\n2. ТЕНЬ — пассивный анализ. Низкая скорость, высокая скрытность.\n3. ГИБРИД — сбалансированный протокол.",
+        'start': {
+            text: "ФИНАЛЬНЫЙ ЭТАП: СИНХРОНИЗАЦИЯ.\n\nВы подключаетесь к ядру системы. Теперь ваши действия в FILE_01 и FILE_02 определят исход всего человечества.",
             choices: [
-                { text: "ЗАПУСК: КРАКЕН", next: 'breach', effect: (s) => { s.sync = 20; game.notify('ПРОТОКОЛ КРАКЕН АКТИВИРОВАН', 'danger'); } },
-                { text: "ЗАПУСК: ТЕНЬ", next: 'breach', effect: (s) => { s.sync = 10; game.notify('ПРОТОКОЛ ТЕНЬ АКТИВИРОВАН', 'info'); } },
-                { text: "ЗАПУСК: ГИБРИД", next: 'breach', effect: (s) => { s.sync = 15; } }
+                { text: "Загрузить данные Авроры", next: 'phantom_sync', condition: () => SESSION.auroraComplete },
+                { text: "Загрузить данные Магната", next: 'phantom_sync', condition: () => SESSION.chainsComplete }
             ]
         },
-        'breach': {
-            text: "ВЫ ВНУТРИ. Данные фрагментированы. Перед вами первый уровень защиты.\nВНИМАНИЕ: Обнаружена попытка отслеживания!",
+        'phantom_sync': {
+            text: "Синхронизация: " + SESSION.clues + " улик собрано. Система анализирует вашу личность...",
             choices: [
-                { text: "Обход фаервола (БЫСТРО)", next: 'memory_1', timer: 5, chance: 80, failNext: 'corruption_event' },
-                { text: "Глубокое шифрование", next: 'memory_1', effect: (s) => { s.sync += 20; s.integrity -= 10; } }
+                { text: "Принять истину", next: 'phantom_truth', timer: 5 },
+                { text: "Уничтожить систему", next: 'phantom_void', timer: 5 }
             ]
         },
-        'corruption_event': {
-            text: "ОШИБКА СИНХРОНИЗАЦИИ! Система обнаружила ваше присутствие. Код начинает распадаться.",
-            choices: [
-                { text: "Стабилизировать ядро", next: 'breach', timer: 3, effect: (s) => s.integrity -= 30 },
-                { text: "Аварийный выход", next: 'reset' }
-            ]
+        'phantom_truth': {
+            text: "ВЫВОД СИСТЕМЫ: Вы " + SESSION.character + ". Ваша тяга к правде изменила мир.",
+            choices: [{ text: "ПОКАЗАТЬ ФИНАЛ", next: 'mega_ending' }]
         },
-        'memory_1': {
-            text: "ПЕРВЫЙ ФРАГМЕНТ ПАМЯТИ: Лаборатория Авроры. 48 часов до инцидента.\nВы видите ученого, он что-то вводит в консоль.",
-            choices: [
-                { text: "Перехватить ввод (3.14...)", next: 'memory_2', chance: 60, failNext: 'corruption_event' },
-                { text: "Сканировать лицо ученого", next: 'memory_2', effect: (s) => s.sync += 15 }
-            ]
-        },
-        'memory_2': {
-            text: "ВТОРОЙ ФРАГМЕНТ: Эвакуация. Крики. Свет в небе над островом был не от взрыва. Это был... портал?",
-            choices: [
-                { text: "Анализировать спектр света", next: 'virus_attack', timer: 7, effect: (s) => s.sync += 30 },
-                { text: "Игнорировать, искать список жертв", next: 'virus_attack', chance: 90, failNext: 'corruption_event' }
-            ]
-        },
-        'virus_attack': {
-            text: "ВНИМАНИЕ: ВИРУС 'ФАНТОМ' ОБНАРУЖЕН. Он пожирает вашу целостность!",
-            choices: [
-                { text: "Контратака (КРАКЕН)", next: 'truth', condition: (s) => s.sync > 50, chance: 70, failNext: 'death' },
-                { text: "Усилить щиты", next: 'truth', effect: (s) => s.integrity -= 40 }
-            ]
-        },
-        'truth': {
-            text: "ФИНАЛЬНЫЙ СЛОЙ: Проект Аврора был не научным центром. Это был ЯКОРЬ. Они не исчезли. Они перемещены.",
-            choices: [
-                { text: "Загрузить данные в архив", next: 'end_ascension', condition: (s) => s.integrity > 20 },
-                { text: "Уничтожить данные (Самоликвидация)", next: 'end_void' }
-            ]
-        },
-        'death': { text: "ВАШЕ СОЗНАНИЕ РАСТВОРИЛОСЬ В КОДЕ. ВЫ ТЕПЕРЬ ЧАСТЬ АРХИВА.", choices: [{ text: "ПЕРЕЗАГРУЗКА", next: 'reset' }] },
-        'end_ascension': { text: "ФИНАЛ: ВОЗНЕСЕНИЕ\n\nВы раскрыли истинную цель Авроры. Человечество теперь знает, что мы не одни. Но за вами уже выехали.", choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] },
-        'end_void': { text: "ФИНАЛ: ПУСТОТА\n\nВы стерли всё. Тайна Авроры умрет вместе с вами. Это был единственный способ спасти мир от того, что там находится.", choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] }
+        'mega_ending': {
+            text: "ГЛОБАЛЬНЫЙ ФИНАЛ: " + (SESSION.clues > 100 ? "ЗОЛОТОЙ ВЕК" : "ЦИФРОВОЙ ХАОС") + "\n\nВаша роль: " + SESSION.character + ".\nСобрано улик: " + SESSION.clues + ".\n\nСпасибо за игру в Archive 47.",
+            choices: [{ text: "В НАЧАЛО (СБРОС ВСЕГО)", next: 'full_reset' }]
+        }
     }
 };
 
@@ -311,6 +168,9 @@ class ArchiveEngine {
             phantom: JSON.parse(JSON.stringify(INITIAL_PHANTOM_STATE))
         };
         this.timer = null;
+        this.terminal = null;
+        this.deduction = null;
+        this.gameTimer = null;
         this.init();
     }
 
@@ -333,25 +193,122 @@ class ArchiveEngine {
         document.getElementById('game-container').classList.remove('hidden');
         document.getElementById('hub-screen').classList.remove('hidden');
         document.getElementById('investigation-screen').classList.add('hidden');
+        document.getElementById('os-screen').classList.add('hidden');
+        this.updateHubStatus();
+    }
+
+    showOS() {
+        this.state.mode = 'os';
+        document.getElementById('hub-screen').classList.add('hidden');
+        document.getElementById('investigation-screen').classList.add('hidden');
+        document.getElementById('os-screen').classList.remove('hidden');
+
+        // Инициализируем модули только один раз
+        if (!this.terminal) {
+            this.terminal = new Terminal('terminal-history', 'terminal-input');
+        }
+        if (!this.deduction) {
+            this.deduction = new DeductionBoard('deduction-board');
+        }
+        if (!this.gameTimer) {
+            this.gameTimer = new GameTimer('game-clock');
+            window.gameTimer = this.gameTimer; // Для доступа из терминала
+            this.gameTimer.start();
+        }
+        
+        this.notify('SYSTEM BOOT SUCCESSFUL', 'success');
+    }
+
+    updateHubStatus() {
+        if (!SESSION.character) {
+            document.querySelectorAll('.case-card').forEach(c => c.classList.add('locked'));
+            this.showCharacterSelectInHub();
+        } else {
+            document.querySelectorAll('.case-card').forEach(c => c.classList.remove('locked'));
+        }
+    }
+
+    showCharacterSelectInHub() {
+        const grid = document.querySelector('.case-grid');
+        if (document.getElementById('hub-char-select')) return;
+        
+        const overlay = document.createElement('div');
+        overlay.id = 'hub-char-select';
+        overlay.className = 'char-select-overlay';
+        overlay.innerHTML = `
+            <h2>ВЫБЕРИТЕ СВОЮ РОЛЬ В ТРИЛОГИИ</h2>
+            <div class="char-options">
+                <button onclick="game.selectGlobalChar('Журналист')">ЖУРНАЛИСТ</button>
+                <button onclick="game.selectGlobalChar('Звезда')">ЗВЕЗДА</button>
+                <button onclick="game.selectGlobalChar('Охранник')">ОХРАННИК</button>
+            </div>
+        `;
+        document.getElementById('hub-screen').appendChild(overlay);
+    }
+
+    selectGlobalChar(char) {
+        SESSION.character = char;
+        this.notify('РОЛЬ ВЫБРАНА: ' + char.toUpperCase(), 'info');
+        const overlay = document.getElementById('hub-char-select');
+        if (overlay) overlay.remove();
+        this.updateHubStatus();
     }
 
     startCase(caseId) {
+        if (!SESSION.character) return this.notify('СНАЧАЛА ВЫБЕРИТЕ РОЛЬ', 'danger');
         this.state.mode = caseId;
         document.getElementById('hub-screen').classList.add('hidden');
         document.getElementById('investigation-screen').classList.remove('hidden');
-        
         document.getElementById('active-case-id').textContent = caseId.toUpperCase();
         document.getElementById('active-case-title').textContent = caseId === 'aurora' ? 'ОСТРОВ АВРОРА' : (caseId === 'chains' ? 'ЗОЛОТЫЕ ЦЕПИ' : 'ФАНТОМНЫЙ ПРОТОКОЛ');
-
-        ['aurora', 'chains', 'phantom'].forEach(id => {
-            document.getElementById(`sidebar-${id}`).classList.add('hidden');
-        });
+        ['aurora', 'chains', 'phantom'].forEach(id => document.getElementById(`sidebar-${id}`).classList.add('hidden'));
         document.getElementById(`sidebar-${caseId}`).classList.remove('hidden');
 
-        if (caseId === 'aurora') this.renderAuroraFile(this.state.aurora.currentFile);
+        if (caseId === 'aurora') this.renderAuroraNode(this.state.aurora.currentNode);
         else if (caseId === 'chains') this.renderChainsNode(this.state.chains.currentNode);
         else this.renderPhantomNode(this.state.phantom.currentNode);
     }
+
+    // --- УНИФИЦИРОВАННЫЙ РЕНДЕР ---
+    renderNode(data, nodeId, stateRef, nextFunc) {
+        this.clearTimer();
+        if (nodeId === 'hub_return') return this.showHub();
+        if (nodeId === 'reset') { this.resetCurrentArchive(); return; }
+        if (nodeId === 'full_reset') { location.reload(); return; }
+
+        stateRef.currentNode = nodeId;
+        const node = data.nodes[nodeId];
+        const container = document.getElementById('scene-container');
+        container.innerHTML = `<div class="scene-text ${this.state.phantom.integrity < 40 && this.state.mode === 'phantom' ? 'corrupted' : ''}">${node.text}</div>`;
+        
+        const choicesContainer = document.getElementById('choices-container');
+        choicesContainer.innerHTML = '';
+
+        node.choices.forEach(c => {
+            if (c.condition && !c.condition(stateRef)) return;
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.textContent = c.text + (c.chance ? ` (${c.chance}%)` : '') + (c.timer ? ` [${c.timer}s]` : '');
+            btn.onclick = () => {
+                this.clearTimer();
+                container.classList.add('shake'); setTimeout(() => container.classList.remove('shake'), 500);
+                if (c.chance) {
+                    if (this.rollDice(c.chance)) { if (c.effect) c.effect(stateRef); nextFunc(c.next); }
+                    else { if (c.failEffect) c.failEffect(stateRef); nextFunc(c.failNext || nodeId); }
+                } else { if (c.effect) c.effect(stateRef); nextFunc(c.next); }
+            };
+            choicesContainer.appendChild(btn);
+        });
+
+        const timed = node.choices.find(c => c.timer);
+        if (timed) this.startChoiceTimer(timed.timer, () => nextFunc(timed.failNext || 'corruption_event'));
+
+        this.updateStats();
+    }
+
+    renderAuroraNode(id) { this.renderNode(auroraData, id, this.state.aurora, (nid) => this.renderAuroraNode(nid)); }
+    renderChainsNode(id) { this.renderNode(chainsData, id, this.state.chains, (nid) => this.renderChainsNode(nid)); }
+    renderPhantomNode(id) { this.renderNode(phantomData, id, this.state.phantom, (nid) => this.renderPhantomNode(nid)); }
 
     notify(text, type = 'info') {
         const container = document.getElementById('game-notification');
@@ -371,30 +328,21 @@ class ArchiveEngine {
 
     clearTimer() {
         if (this.timer) { clearTimeout(this.timer); this.timer = null; }
-        const timerContainer = document.getElementById('choice-timer-container');
-        const timerBar = document.getElementById('choice-timer-bar');
-        timerContainer.classList.add('hidden');
-        timerBar.classList.remove('timer-anim');
-        timerBar.style.animation = 'none';
+        document.getElementById('choice-timer-container').classList.add('hidden');
+        const bar = document.getElementById('choice-timer-bar');
+        bar.style.animation = 'none';
     }
 
     startChoiceTimer(seconds, onTimeout) {
         this.clearTimer();
-        const timerContainer = document.getElementById('choice-timer-container');
-        const timerBar = document.getElementById('choice-timer-bar');
-        
-        timerContainer.classList.remove('hidden');
-        timerBar.style.animation = `timerDecrease ${seconds}s linear forwards`;
-        
-        this.timer = setTimeout(() => {
-            this.notify('ВРЕМЯ ИСТЕКЛО', 'danger');
-            onTimeout();
-        }, seconds * 1000);
+        const container = document.getElementById('choice-timer-container');
+        const bar = document.getElementById('choice-timer-bar');
+        container.classList.remove('hidden');
+        bar.style.animation = `timerDecrease ${seconds}s linear forwards`;
+        this.timer = setTimeout(() => { this.notify('ВРЕМЯ ИСТЕКЛО', 'danger'); onTimeout(); }, seconds * 1000);
     }
 
     resetCurrentArchive() {
-        if (!confirm('Сбросить прогресс?')) return;
-        this.clearTimer();
         if (this.state.mode === 'aurora') this.state.aurora = JSON.parse(JSON.stringify(INITIAL_AURORA_STATE));
         else if (this.state.mode === 'chains') this.state.chains = JSON.parse(JSON.stringify(INITIAL_CHAINS_STATE));
         else this.state.phantom = JSON.parse(JSON.stringify(INITIAL_PHANTOM_STATE));
@@ -403,179 +351,16 @@ class ArchiveEngine {
 
     fullSystemReset() { if (confirm('Полный сброс системы?')) location.reload(); }
 
-    renderFileTree() {
-        const tree = document.getElementById('file-tree');
-        tree.innerHTML = '';
-        const folders = {};
-        auroraData.files.forEach(f => {
-            if (!folders[f.folder]) folders[f.folder] = [];
-            folders[f.folder].push(f);
-        });
-        Object.keys(folders).forEach(fName => {
-            const h = document.createElement('div');
-            h.className = 'file-folder-header';
-            h.textContent = fName;
-            tree.appendChild(h);
-            folders[fName].forEach(file => {
-                const item = document.createElement('div');
-                const isUnlocked = this.state.aurora.unlockedFiles.includes(file.id);
-                item.className = `file-item ${isUnlocked ? '' : 'locked'} ${this.state.aurora.currentFile === file.id ? 'active' : ''}`;
-                item.textContent = file.title;
-                item.onclick = () => isUnlocked && this.renderAuroraFile(file.id);
-                tree.appendChild(item);
-            });
-        });
-    }
-
-    renderAuroraFile(fileId) {
-        this.state.aurora.currentFile = fileId;
-        const file = auroraData.files.find(f => f.id === fileId);
-        if (!file) return;
-        document.getElementById('scene-container').innerHTML = `<div class="scene-text">${file.content}</div>`;
-        const choices = document.getElementById('choices-container');
-        choices.innerHTML = '';
-        file.choices.forEach(c => {
-            const btn = document.createElement('button');
-            btn.className = 'choice-btn';
-            btn.textContent = c.text;
-            btn.onclick = () => {
-                if (c.unlock && !this.state.aurora.unlockedFiles.includes(c.unlock)) this.state.aurora.unlockedFiles.push(c.unlock);
-                if (c.effect) c.effect(this.state.aurora);
-                this.renderAuroraFile(c.next);
-            };
-            choices.appendChild(btn);
-        });
-        this.renderFileTree();
-        this.updateStats();
-        this.setupRedacted();
-    }
-
-    renderChainsNode(nodeId) {
-        if (nodeId === 'hub_return') return this.showHub();
-        if (nodeId === 'reset') { this.state.chains = JSON.parse(JSON.stringify(INITIAL_CHAINS_STATE)); nodeId = 'character_select'; }
-        this.state.chains.currentNode = nodeId;
-        const node = chainsData.nodes[nodeId];
-        let text = node.text;
-        if (this.state.chains.paranoia > 60) text += "\n\n[ ВЫ ЧУВСТВУЕТЕ ТЯЖЕЛЫЙ ВЗГЛЯД ОХРАНЫ. ]";
-        const container = document.getElementById('scene-container');
-        container.innerHTML = `<div class="scene-text">${text}</div>`;
-        const choicesContainer = document.getElementById('choices-container');
-        choicesContainer.innerHTML = '';
-        node.choices.forEach(c => {
-            if (c.condition && !c.condition(this.state.chains)) return;
-            const btn = document.createElement('button');
-            btn.className = 'choice-btn';
-            btn.textContent = c.text + (c.chance ? ` (${c.chance}%)` : '');
-            btn.onclick = () => {
-                container.classList.add('shake'); setTimeout(() => container.classList.remove('shake'), 500);
-                if (c.chance) {
-                    if (this.rollDice(c.chance)) {
-                        if (c.effect) c.effect(this.state.chains);
-                        this.renderChainsNode(c.next);
-                    } else {
-                        if (c.failEffect) c.failEffect(this.state.chains);
-                        this.renderChainsNode(c.failNext || nodeId);
-                    }
-                } else {
-                    if (c.effect) c.effect(this.state.chains);
-                    this.renderChainsNode(c.next);
-                }
-            };
-            choicesContainer.appendChild(btn);
-        });
-        this.updateStats();
-        const v = document.getElementById('danger-vignette');
-        if (this.state.chains.paranoia > 50) v.classList.remove('hidden'); else v.classList.add('hidden');
-        if (this.state.chains.paranoia >= 100) {
-            this.notify('ПРОВАЛ ОБНАРУЖЕНИЯ', 'danger');
-            setTimeout(() => this.renderChainsNode('reset'), 1500);
-        }
-    }
-
-    renderPhantomNode(nodeId) {
-        this.clearTimer();
-        if (nodeId === 'hub_return') return this.showHub();
-        if (nodeId === 'reset') { this.state.phantom = JSON.parse(JSON.stringify(INITIAL_PHANTOM_STATE)); nodeId = 'character_select'; }
-        
-        this.state.phantom.currentNode = nodeId;
-        const node = phantomData.nodes[nodeId];
-        const container = document.getElementById('scene-container');
-        const textEl = document.createElement('div');
-        textEl.className = 'scene-text' + (this.state.phantom.integrity < 40 ? ' corrupted' : '');
-        textEl.textContent = node.text;
-        container.innerHTML = '';
-        container.appendChild(textEl);
-
-        const screen = document.getElementById('investigation-screen');
-        if (this.state.phantom.integrity < 30) screen.classList.add('glitch-mode');
-        else screen.classList.remove('glitch-mode');
-
-        const choicesContainer = document.getElementById('choices-container');
-        choicesContainer.innerHTML = '';
-
-        node.choices.forEach(c => {
-            if (c.condition && !c.condition(this.state.phantom)) return;
-            const btn = document.createElement('button');
-            btn.className = 'choice-btn';
-            btn.textContent = c.text + (c.timer ? ` [${c.timer}s]` : '');
-            btn.onclick = () => {
-                this.clearTimer();
-                if (c.chance) {
-                    if (this.rollDice(c.chance)) {
-                        if (c.effect) c.effect(this.state.phantom);
-                        this.renderPhantomNode(c.next);
-                    } else {
-                        if (c.failEffect) c.failEffect(this.state.phantom);
-                        this.renderPhantomNode(c.failNext || nodeId);
-                    }
-                } else {
-                    if (c.effect) c.effect(this.state.phantom);
-                    this.renderPhantomNode(c.next);
-                }
-            };
-            choicesContainer.appendChild(btn);
-        });
-
-        const timedChoice = node.choices.find(c => c.timer);
-        if (timedChoice) {
-            this.startChoiceTimer(timedChoice.timer, () => {
-                this.renderPhantomNode(timedChoice.failNext || 'corruption_event');
-            });
-        }
-
-        this.updateStats();
-        if (this.state.phantom.integrity <= 0) {
-            this.notify('ЦЕЛОСТНОСТЬ ПОТЕРЯНА', 'danger');
-            setTimeout(() => this.renderPhantomNode('death'), 1000);
-        }
-    }
-
-    setupRedacted() {
-        document.querySelectorAll('.redacted').forEach(el => {
-            el.onclick = () => {
-                if (!el.classList.contains('revealed')) {
-                    el.classList.add('revealed');
-                    this.state.aurora.justice = Math.min(100, this.state.aurora.justice + 5);
-                    this.notify('ДАННЫЕ ВОССТАНОВЛЕНЫ', 'info');
-                    this.updateStats();
-                }
-            };
-        });
-    }
-
     updateStats() {
         const m = this.state.mode;
         if (m === 'aurora') {
-            document.getElementById('justice-bar').style.width = this.state.aurora.justice + '%';
-            document.getElementById('pressure-bar').style.width = this.state.aurora.pressure + '%';
+            document.getElementById('justice-bar').style.width = (SESSION.clues / 2) + '%';
+            document.getElementById('pressure-bar').style.width = '0%';
         } else if (m === 'chains') {
             document.getElementById('paranoia-bar').style.width = this.state.chains.paranoia + '%';
-            document.getElementById('clues-bar').style.width = this.state.chains.clues + '%';
-            const inv = document.getElementById('inventory-list');
-            inv.innerHTML = '';
-            this.state.chains.inventory.forEach(i => {
-                const li = document.createElement('li'); li.textContent = i; inv.appendChild(li);
-            });
+            document.getElementById('clues-bar').style.width = (SESSION.clues / 2) + '%';
+            const inv = document.getElementById('inventory-list'); inv.innerHTML = '';
+            SESSION.inventory.forEach(i => { const li = document.createElement('li'); li.textContent = i; inv.appendChild(li); });
         } else if (m === 'phantom') {
             document.getElementById('integrity-bar').style.width = this.state.phantom.integrity + '%';
             document.getElementById('sync-bar').style.width = this.state.phantom.sync + '%';

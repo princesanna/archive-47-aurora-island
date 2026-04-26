@@ -366,3 +366,446 @@ body::after {
     text-shadow: 0 0 10px rgba(255, 0, 85, 0.4); 
     letter-spacing: 0.05em;
 }
+/* === CHARACTER SELECT OVERLAY === */
+.char-select-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(5, 6, 10, 0.95); z-index: 100;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(15px);
+}
+
+.char-select-overlay h2 {
+    font-family: var(--font-display); font-size: 2rem; color: var(--text-pure);
+    margin-bottom: 40px; letter-spacing: 4px; text-align: center;
+}
+
+.char-options { display: flex; gap: 20px; }
+
+.char-options button {
+    background: transparent; border: 1px solid var(--border-glass);
+    color: var(--text-pure); padding: 30px 50px; font-family: var(--font-display);
+    font-size: 1.2rem; cursor: pointer; border-radius: 20px; transition: all 0.3s;
+    font-weight: 700;
+}
+
+.char-options button:hover {
+    border-color: var(--accent-cyber); background: rgba(0, 242, 255, 0.05);
+    box-shadow: var(--shadow-cyber); transform: translateY(-5px);
+}
+
+.case-card.locked { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
+.case-card.case-os-launcher.locked { opacity: 1; pointer-events: auto; filter: none; } /* OS always available */
+
+/* === OS INTERFACE STYLES (NEW) === */
+
+#os-screen {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: #0a0a0a;
+    overflow: hidden;
+    color: #00ff41; /* Matrix/Terminal Green */
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.os-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0f0f0f 0%, #050505 100%);
+    opacity: 0.8;
+    z-index: 1;
+}
+
+.os-ui-layer {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.os-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background: rgba(0, 0, 0, 0.9);
+    border-bottom: 1px solid #333;
+    backdrop-filter: blur(10px);
+}
+
+.os-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-os-exit {
+    background: transparent;
+    border: 1px solid #ff4141;
+    color: #ff4141;
+    padding: 5px 15px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-os-exit:hover {
+    background: rgba(255, 65, 65, 0.1);
+    box-shadow: 0 0 10px rgba(255, 65, 65, 0.3);
+}
+
+.os-logo {
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.os-timer {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ff4141;
+    text-shadow: 0 0 10px rgba(255, 65, 65, 0.5);
+}
+
+.os-windows-container {
+    flex: 1;
+    position: relative;
+    padding: 20px;
+    margin-bottom: 50px; /* Space for taskbar */
+}
+
+.os-desktop {
+    position: absolute;
+    top: 60px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    z-index: 5;
+}
+
+.desktop-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    width: 80px;
+    transition: all 0.2s;
+}
+
+.desktop-icon:hover .icon-visual {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.icon-visual {
+    font-size: 2.5rem;
+    padding: 15px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s;
+}
+
+.icon-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.os-taskbar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: rgba(0, 0, 0, 0.95);
+    border-top: 1px solid #333;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    z-index: 2000;
+}
+
+.taskbar-start {
+    background: var(--accent-neon);
+    color: #fff;
+    padding: 5px 15px;
+    font-weight: 900;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.taskbar-items {
+    display: flex;
+    gap: 10px;
+}
+
+.task-item {
+    background: #222;
+    padding: 5px 15px;
+    border: 1px solid #444;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.os-window {
+    position: absolute;
+    background: #111;
+    border: 1px solid #333;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    min-height: 350px;
+    width: 450px;
+    z-index: 100;
+    resize: both;
+    overflow: hidden;
+}
+
+.os-window.hidden {
+    display: none !important;
+}
+
+#terminal-window-wrapper {
+    top: 50px;
+    left: 50px;
+}
+
+#deduction-window-wrapper {
+    top: 100px;
+    left: 550px;
+}
+
+.window-header {
+    background: #222;
+    padding: 5px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.window-controls span {
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.window-content {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+/* Terminal Theme */
+.terminal-theme {
+    background: #000;
+    color: #00ff41;
+}
+
+.terminal-output {
+    margin-bottom: 10px;
+    line-height: 1.4;
+    font-size: 0.9rem;
+}
+
+.terminal-line {
+    margin-bottom: 4px;
+    min-height: 1.2em;
+}
+
+.line-error { color: #ff4141; }
+.line-warning { color: #ffb841; }
+.line-success { color: #41ffb8; }
+.line-info { color: #41b8ff; }
+.line-system { color: #888; font-style: italic; }
+.line-user { color: #fff; font-weight: bold; }
+
+.terminal-input-line {
+    display: flex;
+    align-items: center;
+}
+
+.terminal-prompt {
+    margin-right: 10px;
+    color: #00ff41;
+}
+
+#terminal-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    flex: 1;
+}
+
+/* Deduction Board Theme */
+.board-theme {
+    background: #1a1a1a;
+    background-image: 
+        radial-gradient(circle, #333 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.deduction-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    position: relative;
+    min-height: 100%;
+}
+
+.evidence-card {
+    width: 120px;
+    height: 120px;
+    background: #222;
+    border: 1px solid #444;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+    user-select: none;
+    padding: 10px;
+    text-align: center;
+}
+
+.evidence-card:hover {
+    transform: translateY(-5px);
+    border-color: #00ff41;
+    box-shadow: 0 5px 15px rgba(0, 255, 65, 0.2);
+}
+
+.evidence-card.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+.evidence-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.evidence-name {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #eee;
+}
+
+.board-message {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    animation: fadeInOut 2s forwards;
+}
+
+.message-success { color: #41ffb8; border: 1px solid #41ffb8; }
+.message-error { color: #ff4141; border: 1px solid #ff4141; }
+
+/* CRT EFFECTS - Enhanced */
+.scanlines {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.1) 50%
+    ), linear-gradient(
+        90deg, 
+        rgba(255, 0, 0, 0.03), 
+        rgba(0, 255, 0, 0.01), 
+        rgba(0, 0, 255, 0.03)
+    );
+    background-size: 100% 4px, 3px 100%;
+    z-index: 1000;
+}
+
+/* Animations */
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, 10px); }
+    10% { opacity: 1; transform: translate(-50%, 0); }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Blinking Cursor */
+#terminal-input {
+    caret-color: #00ff41;
+}
+
+/* CRT Flicker Animation */
+@keyframes flicker {
+    0% { opacity: 0.99373; }
+    5% { opacity: 0.95945; }
+    10% { opacity: 0.9398; }
+    15% { opacity: 0.95304; }
+    20% { opacity: 0.98503; }
+    25% { opacity: 0.92313; }
+    30% { opacity: 0.95795; }
+    35% { opacity: 0.91505; }
+    40% { opacity: 0.94546; }
+    45% { opacity: 0.99128; }
+    50% { opacity: 0.97193; }
+    55% { opacity: 0.92822; }
+    60% { opacity: 0.95913; }
+    65% { opacity: 0.94866; }
+    70% { opacity: 0.93276; }
+    75% { opacity: 0.99253; }
+    80% { opacity: 0.93393; }
+    85% { opacity: 0.9634; }
+    90% { opacity: 0.97347; }
+    95% { opacity: 0.98887; }
+    100% { opacity: 0.99373; }
+}
+
+#os-screen::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(18, 16, 16, 0.1);
+    opacity: 0;
+    z-index: 2000;
+    pointer-events: none;
+    animation: flicker 0.15s infinite;
+}
+
+/* Scrollbar styling for terminal */
+.window-content::-webkit-scrollbar {
+    width: 6px;
+}
+.window-content::-webkit-scrollbar-track {
+    background: #000;
+}
+.window-content::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+}
+.window-content::-webkit-scrollbar-thumb:hover {
+    background: #00ff41;
+}
