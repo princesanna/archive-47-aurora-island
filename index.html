@@ -44,6 +44,13 @@
                     <div class="case-status status-new">ОБНОВЛЕНО: V2.0</div>
                     <p class="case-desc">Шпионский триллер. Проникновение на закрытую вечеринку Магната. Высокие ставки, социальный стелс.</p>
                 </div>
+
+                <div class="case-card" onclick="game.startCase('phantom')">
+                    <div class="case-id">FILE_03</div>
+                    <h2 class="case-title">ФАНТОМНЫЙ ПРОТОКОЛ</h2>
+                    <div class="case-status status-new">EXPERIMENTAL</div>
+                    <p class="case-desc">Кибер-триллер. Взлом призрачной памяти погибшего агента. Сверхвысокая сложность, риск коррупции данных.</p>
+                </div>
             </div>
 
             <footer class="hub-footer">
@@ -98,6 +105,20 @@
                     </div>
                 </div>
 
+                <!-- SIDEBAR: PHANTOM -->
+                <div id="sidebar-phantom" class="sidebar-mode hidden">
+                    <div class="stats-panel">
+                        <div class="stat-item">
+                            <label>ЦЕЛОСТНОСТЬ</label>
+                            <div class="progress-track"><div id="integrity-bar" class="progress-fill integrity"></div></div>
+                        </div>
+                        <div class="stat-item">
+                            <label>СИНХРОНИЗАЦИЯ</label>
+                            <div class="progress-track"><div id="sync-bar" class="progress-fill sync"></div></div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="sidebar-controls">
                     <button class="btn-reset" onclick="game.resetCurrentArchive()">[ СБРОСИТЬ ПРОГРЕСС ]</button>
                     <button class="btn-hub" onclick="game.showHub()">[ ВЕРНУТЬСЯ В ХАБ ]</button>
@@ -105,6 +126,9 @@
             </aside>
 
             <main class="game-content">
+                <div id="choice-timer-container" class="timer-container hidden">
+                    <div id="choice-timer-bar" class="timer-bar"></div>
+                </div>
                 <div id="scene-container"></div>
                 <div id="choices-container" class="choices-grid"></div>
             </main>

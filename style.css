@@ -228,9 +228,14 @@ body::after {
 #scene-container { max-width: 900px; margin: 0 auto; flex: 1; width: 100%; }
 
 .scene-text {
-    font-family: var(--font-typewriter); font-size: 1.25rem; line-height: 1.9;
-    color: #e2e8f0; margin-bottom: 60px; white-space: pre-wrap;
-    text-shadow: 0 0 1px rgba(255,255,255,0.1);
+    font-family: var(--font-display); 
+    font-size: 1.4rem; 
+    line-height: 1.7;
+    color: #f8fafc; 
+    margin-bottom: 60px; 
+    white-space: pre-wrap;
+    font-weight: 400;
+    letter-spacing: -0.01em;
 }
 
 .choices-grid { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 18px; width: 100%; }
@@ -331,4 +336,33 @@ body::after {
     #investigation-screen { flex-direction: column; }
     .game-sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-glass); }
     .case-grid { grid-template-columns: 1fr; padding: 0 20px; }
+}
+
+/* Phantom Protocol Specifics */
+.progress-fill.integrity { background: linear-gradient(90deg, #00f5d4, #00bbf9); box-shadow: 0 0 10px rgba(0, 245, 212, 0.4); }
+.progress-fill.sync { background: linear-gradient(90deg, #9b5de5, #f15bb5); box-shadow: 0 0 10px rgba(155, 93, 229, 0.4); }
+
+.timer-container {
+    width: 100%; height: 4px; background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 20px; overflow: hidden; border-radius: 2px;
+}
+.timer-bar {
+    height: 100%; background: var(--accent-neon); width: 100%; transform-origin: left;
+}
+.timer-anim { animation: timerDecrease linear forwards; }
+@keyframes timerDecrease { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+.glitch-mode { animation: glitch-skew 0.3s infinite linear alternate-reverse; }
+@keyframes glitch-skew {
+    0% { transform: skew(2deg); filter: hue-rotate(90deg); }
+    10% { transform: skew(-3deg); filter: contrast(150%); }
+    20% { transform: skew(5deg); filter: blur(1px); }
+    50% { transform: skew(0deg); }
+    100% { transform: skew(1deg); }
+}
+.scene-text.corrupted { 
+    font-family: var(--font-mono); 
+    color: var(--accent-neon); 
+    text-shadow: 0 0 10px rgba(255, 0, 85, 0.4); 
+    letter-spacing: 0.05em;
 }

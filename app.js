@@ -17,6 +17,12 @@ const INITIAL_CHAINS_STATE = {
     currentNode: 'character_select'
 };
 
+const INITIAL_PHANTOM_STATE = {
+    integrity: 100,
+    sync: 0,
+    currentNode: 'character_select'
+};
+
 const auroraData = {
     files: [
         {
@@ -131,7 +137,6 @@ const chainsData = {
                 { text: "Вернуться назад", next: 'intro' }
             ]
         },
-        // Мини-игра: Взлом сейфа
         'safe_mini_1': {
             text: "ВЗЛОМ: ШАГ 1/3\nВы вставляете отмычку. Чувствуете три пина. Какой нажать первым?",
             choices: [
@@ -161,7 +166,6 @@ const chainsData = {
                 { text: "Пройти в VIP-зону (VIP-пропуск)", next: 'vip_lounge', condition: (s) => s.character === 'Звезда' }
             ] 
         },
-        // Мини-игра: Диалог
         'talk_mini_1': {
             text: "МАНИПУЛЯЦИЯ: ШАГ 1/2\nПомощник смотрит на вас с подозрением. 'Мы знакомы?'",
             choices: [
@@ -181,7 +185,6 @@ const chainsData = {
             choices: [{ text: "Взять ключ", next: 'follow', effect: (s) => { s.inventory.push('Ключ-карта'); s.clues += 20; } }]
         },
         'talk_fail': { text: "Его подозрения только усилились. Охрана теперь следит за вами.", choices: [{ text: "Уйти", next: 'intro' }] },
-
         'record': {
             text: "Диктофон в кармане фиксирует шепот: '...груз с Авроры прибудет в полночь. Остров должен оставаться закрытым'.",
             choices: [{ text: "Продолжить сбор данных", next: 'follow', effect: (s) => s.clues += 25 }]
@@ -233,23 +236,68 @@ const chainsData = {
         'room': { text: "Вы подключаете флешку. На экране мелькают записи с камер на Авроре. Вы видите, как людей погружают в контейнеры.", choices: [{ text: "Забрать данные и уйти", next: 'confrontation', effect: (s) => s.clues += 50 }] },
         'they': { text: "'Они' — это те, кто спонсирует этот архив. Вы слишком глубоко зашли.", choices: [{ text: "Продолжить", next: 'confrontation' }] },
         'map': { text: "Карта раскрывает координаты секретной лаборатории. Теперь у вас есть всё.", choices: [{ text: "Уйти незаметно", next: 'confrontation' }] },
-        
-        'end_exposure': { 
-            text: "ФИНАЛ: РАЗОБЛАЧЕНИЕ\n\nВы передали данные прессе. Акции Магната рухнули, началось международное расследование. Остров Аврора снова в заголовках.", 
-            choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] 
+        'end_exposure': { text: "ФИНАЛ: РАЗОБЛАЧЕНИЕ\n\nВы передали данные прессе. Акции Магната рухнули.", choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] },
+        'end_bribe': { text: "ФИНАЛ: ЗОЛОТАЯ КЛЕТКА\n\nВы получили чек на 10 миллионов. Вы соучастник.", choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] },
+        'end_escape': { text: "ФИНАЛ: ТЕНЬ\n\nВы сбежали, но улик недостаточно. Магнат всё еще на свободе.", choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] },
+        'escape_run': { text: "Вы выпрыгиваете в окно, преследуемый охраной.", choices: [{ text: "Скрыться в ночи", next: 'end_escape' }] }
+    }
+};
+
+const phantomData = {
+    nodes: {
+        'character_select': {
+            text: "ПОДКЛЮЧЕНИЕ К ПРИЗРАЧНОМУ УЗЛУ...\n\nВыберите метод синхронизации:\n1. КРАКЕН — агрессивный взлом. Высокая скорость, риск повреждения.\n2. ТЕНЬ — пассивный анализ. Низкая скорость, высокая скрытность.\n3. ГИБРИД — сбалансированный протокол.",
+            choices: [
+                { text: "ЗАПУСК: КРАКЕН", next: 'breach', effect: (s) => { s.sync = 20; game.notify('ПРОТОКОЛ КРАКЕН АКТИВИРОВАН', 'danger'); } },
+                { text: "ЗАПУСК: ТЕНЬ", next: 'breach', effect: (s) => { s.sync = 10; game.notify('ПРОТОКОЛ ТЕНЬ АКТИВИРОВАН', 'info'); } },
+                { text: "ЗАПУСК: ГИБРИД", next: 'breach', effect: (s) => { s.sync = 15; } }
+            ]
         },
-        'end_bribe': { 
-            text: "ФИНАЛ: ЗОЛОТАЯ КЛЕТКА\n\nВы получили чек на 10 миллионов. Теперь вы живете в роскоши, но каждый шорох за спиной заставляет вас вздрагивать. Вы — соучастник.", 
-            choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] 
+        'breach': {
+            text: "ВЫ ВНУТРИ. Данные фрагментированы. Перед вами первый уровень защиты.\nВНИМАНИЕ: Обнаружена попытка отслеживания!",
+            choices: [
+                { text: "Обход фаервола (БЫСТРО)", next: 'memory_1', timer: 5, chance: 80, failNext: 'corruption_event' },
+                { text: "Глубокое шифрование", next: 'memory_1', effect: (s) => { s.sync += 20; s.integrity -= 10; } }
+            ]
         },
-        'end_escape': { 
-            text: "ФИНАЛ: ТЕНЬ\n\nВы сбежали, но улик недостаточно для суда. Магнат всё еще на свободе, и теперь он знает ваше имя. Начинается долгая игра в кошки-мышки.", 
-            choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] 
+        'corruption_event': {
+            text: "ОШИБКА СИНХРОНИЗАЦИИ! Система обнаружила ваше присутствие. Код начинает распадаться.",
+            choices: [
+                { text: "Стабилизировать ядро", next: 'breach', timer: 3, effect: (s) => s.integrity -= 30 },
+                { text: "Аварийный выход", next: 'reset' }
+            ]
         },
-        'escape_run': {
-            text: "Вы выпрыгиваете в окно, преследуемый охраной. В руках — обрывки документов.",
-            choices: [{ text: "Скрыться в ночи", next: 'end_escape' }]
-        }
+        'memory_1': {
+            text: "ПЕРВЫЙ ФРАГМЕНТ ПАМЯТИ: Лаборатория Авроры. 48 часов до инцидента.\nВы видите ученого, он что-то вводит в консоль.",
+            choices: [
+                { text: "Перехватить ввод (3.14...)", next: 'memory_2', chance: 60, failNext: 'corruption_event' },
+                { text: "Сканировать лицо ученого", next: 'memory_2', effect: (s) => s.sync += 15 }
+            ]
+        },
+        'memory_2': {
+            text: "ВТОРОЙ ФРАГМЕНТ: Эвакуация. Крики. Свет в небе над островом был не от взрыва. Это был... портал?",
+            choices: [
+                { text: "Анализировать спектр света", next: 'virus_attack', timer: 7, effect: (s) => s.sync += 30 },
+                { text: "Игнорировать, искать список жертв", next: 'virus_attack', chance: 90, failNext: 'corruption_event' }
+            ]
+        },
+        'virus_attack': {
+            text: "ВНИМАНИЕ: ВИРУС 'ФАНТОМ' ОБНАРУЖЕН. Он пожирает вашу целостность!",
+            choices: [
+                { text: "Контратака (КРАКЕН)", next: 'truth', condition: (s) => s.sync > 50, chance: 70, failNext: 'death' },
+                { text: "Усилить щиты", next: 'truth', effect: (s) => s.integrity -= 40 }
+            ]
+        },
+        'truth': {
+            text: "ФИНАЛЬНЫЙ СЛОЙ: Проект Аврора был не научным центром. Это был ЯКОРЬ. Они не исчезли. Они перемещены.",
+            choices: [
+                { text: "Загрузить данные в архив", next: 'end_ascension', condition: (s) => s.integrity > 20 },
+                { text: "Уничтожить данные (Самоликвидация)", next: 'end_void' }
+            ]
+        },
+        'death': { text: "ВАШЕ СОЗНАНИЕ РАСТВОРИЛОСЬ В КОДЕ. ВЫ ТЕПЕРЬ ЧАСТЬ АРХИВА.", choices: [{ text: "ПЕРЕЗАГРУЗКА", next: 'reset' }] },
+        'end_ascension': { text: "ФИНАЛ: ВОЗНЕСЕНИЕ\n\nВы раскрыли истинную цель Авроры. Человечество теперь знает, что мы не одни. Но за вами уже выехали.", choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] },
+        'end_void': { text: "ФИНАЛ: ПУСТОТА\n\nВы стерли всё. Тайна Авроры умрет вместе с вами. Это был единственный способ спасти мир от того, что там находится.", choices: [{ text: "ВЕРНУТЬСЯ В ХАБ", next: 'hub_return' }] }
     }
 };
 
@@ -259,8 +307,10 @@ class ArchiveEngine {
         this.state = {
             mode: 'hub',
             aurora: JSON.parse(JSON.stringify(INITIAL_AURORA_STATE)),
-            chains: JSON.parse(JSON.stringify(INITIAL_CHAINS_STATE))
+            chains: JSON.parse(JSON.stringify(INITIAL_CHAINS_STATE)),
+            phantom: JSON.parse(JSON.stringify(INITIAL_PHANTOM_STATE))
         };
+        this.timer = null;
         this.init();
     }
 
@@ -277,6 +327,7 @@ class ArchiveEngine {
     }
 
     showHub() {
+        this.clearTimer();
         this.state.mode = 'hub';
         document.getElementById('bootScreen').classList.add('hidden');
         document.getElementById('game-container').classList.remove('hidden');
@@ -289,18 +340,17 @@ class ArchiveEngine {
         document.getElementById('hub-screen').classList.add('hidden');
         document.getElementById('investigation-screen').classList.remove('hidden');
         
-        document.getElementById('active-case-id').textContent = caseId === 'aurora' ? 'FILE_01' : 'FILE_02';
-        document.getElementById('active-case-title').textContent = caseId === 'aurora' ? 'ОСТРОВ АВРОРА' : 'ЗОЛОТЫЕ ЦЕПИ';
+        document.getElementById('active-case-id').textContent = caseId.toUpperCase();
+        document.getElementById('active-case-title').textContent = caseId === 'aurora' ? 'ОСТРОВ АВРОРА' : (caseId === 'chains' ? 'ЗОЛОТЫЕ ЦЕПИ' : 'ФАНТОМНЫЙ ПРОТОКОЛ');
 
-        if (caseId === 'aurora') {
-            document.getElementById('sidebar-aurora').classList.remove('hidden');
-            document.getElementById('sidebar-chains').classList.add('hidden');
-            this.renderAuroraFile(this.state.aurora.currentFile);
-        } else {
-            document.getElementById('sidebar-aurora').classList.add('hidden');
-            document.getElementById('sidebar-chains').classList.remove('hidden');
-            this.renderChainsNode(this.state.chains.currentNode);
-        }
+        ['aurora', 'chains', 'phantom'].forEach(id => {
+            document.getElementById(`sidebar-${id}`).classList.add('hidden');
+        });
+        document.getElementById(`sidebar-${caseId}`).classList.remove('hidden');
+
+        if (caseId === 'aurora') this.renderAuroraFile(this.state.aurora.currentFile);
+        else if (caseId === 'chains') this.renderChainsNode(this.state.chains.currentNode);
+        else this.renderPhantomNode(this.state.phantom.currentNode);
     }
 
     notify(text, type = 'info') {
@@ -319,22 +369,40 @@ class ArchiveEngine {
         return success;
     }
 
+    clearTimer() {
+        if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+        const timerContainer = document.getElementById('choice-timer-container');
+        const timerBar = document.getElementById('choice-timer-bar');
+        timerContainer.classList.add('hidden');
+        timerBar.classList.remove('timer-anim');
+        timerBar.style.animation = 'none';
+    }
+
+    startChoiceTimer(seconds, onTimeout) {
+        this.clearTimer();
+        const timerContainer = document.getElementById('choice-timer-container');
+        const timerBar = document.getElementById('choice-timer-bar');
+        
+        timerContainer.classList.remove('hidden');
+        timerBar.style.animation = `timerDecrease ${seconds}s linear forwards`;
+        
+        this.timer = setTimeout(() => {
+            this.notify('ВРЕМЯ ИСТЕКЛО', 'danger');
+            onTimeout();
+        }, seconds * 1000);
+    }
+
     resetCurrentArchive() {
         if (!confirm('Сбросить прогресс?')) return;
-        if (this.state.mode === 'aurora') {
-            this.state.aurora = JSON.parse(JSON.stringify(INITIAL_AURORA_STATE));
-            this.startCase('aurora');
-        } else {
-            this.state.chains = JSON.parse(JSON.stringify(INITIAL_CHAINS_STATE));
-            this.startCase('chains');
-        }
+        this.clearTimer();
+        if (this.state.mode === 'aurora') this.state.aurora = JSON.parse(JSON.stringify(INITIAL_AURORA_STATE));
+        else if (this.state.mode === 'chains') this.state.chains = JSON.parse(JSON.stringify(INITIAL_CHAINS_STATE));
+        else this.state.phantom = JSON.parse(JSON.stringify(INITIAL_PHANTOM_STATE));
+        this.startCase(this.state.mode);
     }
 
-    fullSystemReset() {
-        if (confirm('Полный сброс системы?')) location.reload();
-    }
+    fullSystemReset() { if (confirm('Полный сброс системы?')) location.reload(); }
 
-    // --- АВРОРА ---
     renderFileTree() {
         const tree = document.getElementById('file-tree');
         tree.innerHTML = '';
@@ -343,13 +411,11 @@ class ArchiveEngine {
             if (!folders[f.folder]) folders[f.folder] = [];
             folders[f.folder].push(f);
         });
-
         Object.keys(folders).forEach(fName => {
             const h = document.createElement('div');
             h.className = 'file-folder-header';
             h.textContent = fName;
             tree.appendChild(h);
-
             folders[fName].forEach(file => {
                 const item = document.createElement('div');
                 const isUnlocked = this.state.aurora.unlockedFiles.includes(file.id);
@@ -365,58 +431,43 @@ class ArchiveEngine {
         this.state.aurora.currentFile = fileId;
         const file = auroraData.files.find(f => f.id === fileId);
         if (!file) return;
-
         document.getElementById('scene-container').innerHTML = `<div class="scene-text">${file.content}</div>`;
         const choices = document.getElementById('choices-container');
         choices.innerHTML = '';
-
         file.choices.forEach(c => {
             const btn = document.createElement('button');
             btn.className = 'choice-btn';
             btn.textContent = c.text;
             btn.onclick = () => {
-                if (c.unlock && !this.state.aurora.unlockedFiles.includes(c.unlock)) {
-                    this.state.aurora.unlockedFiles.push(c.unlock);
-                    this.notify('НОВЫЙ ФАЙЛ ДОСТУПЕН', 'info');
-                }
+                if (c.unlock && !this.state.aurora.unlockedFiles.includes(c.unlock)) this.state.aurora.unlockedFiles.push(c.unlock);
                 if (c.effect) c.effect(this.state.aurora);
                 this.renderAuroraFile(c.next);
             };
             choices.appendChild(btn);
         });
-
         this.renderFileTree();
         this.updateStats();
         this.setupRedacted();
     }
 
-    // --- ЦЕПИ ---
     renderChainsNode(nodeId) {
         if (nodeId === 'hub_return') return this.showHub();
         if (nodeId === 'reset') { this.state.chains = JSON.parse(JSON.stringify(INITIAL_CHAINS_STATE)); nodeId = 'character_select'; }
-        
         this.state.chains.currentNode = nodeId;
         const node = chainsData.nodes[nodeId];
-        if (!node) return console.error('Node not found:', nodeId);
-        
-        let dynamicText = node.text;
-        if (this.state.chains.paranoia > 60) dynamicText += "\n\n[ ВЫ ЧУВСТВУЕТЕ ТЯЖЕЛЫЙ ВЗГЛЯД ОХРАНЫ НА СЕБЕ. ВРЕМЯ НА ИСХОДЕ. ]";
-        
+        let text = node.text;
+        if (this.state.chains.paranoia > 60) text += "\n\n[ ВЫ ЧУВСТВУЕТЕ ТЯЖЕЛЫЙ ВЗГЛЯД ОХРАНЫ. ]";
         const container = document.getElementById('scene-container');
-        container.innerHTML = `<div class="scene-text">${dynamicText}</div>`;
+        container.innerHTML = `<div class="scene-text">${text}</div>`;
         const choicesContainer = document.getElementById('choices-container');
         choicesContainer.innerHTML = '';
-
         node.choices.forEach(c => {
             if (c.condition && !c.condition(this.state.chains)) return;
-            
             const btn = document.createElement('button');
             btn.className = 'choice-btn';
             btn.textContent = c.text + (c.chance ? ` (${c.chance}%)` : '');
             btn.onclick = () => {
-                container.classList.add('shake');
-                setTimeout(() => container.classList.remove('shake'), 500);
-
+                container.classList.add('shake'); setTimeout(() => container.classList.remove('shake'), 500);
                 if (c.chance) {
                     if (this.rollDice(c.chance)) {
                         if (c.effect) c.effect(this.state.chains);
@@ -432,16 +483,70 @@ class ArchiveEngine {
             };
             choicesContainer.appendChild(btn);
         });
-        
         this.updateStats();
-        
-        const vignette = document.getElementById('danger-vignette');
-        if (this.state.chains.paranoia > 50) vignette.classList.remove('hidden');
-        else vignette.classList.add('hidden');
-
+        const v = document.getElementById('danger-vignette');
+        if (this.state.chains.paranoia > 50) v.classList.remove('hidden'); else v.classList.add('hidden');
         if (this.state.chains.paranoia >= 100) {
-            this.notify('СИСТЕМА ОБНАРУЖЕНИЯ: 100%. ПРОВАЛ.', 'danger');
+            this.notify('ПРОВАЛ ОБНАРУЖЕНИЯ', 'danger');
             setTimeout(() => this.renderChainsNode('reset'), 1500);
+        }
+    }
+
+    renderPhantomNode(nodeId) {
+        this.clearTimer();
+        if (nodeId === 'hub_return') return this.showHub();
+        if (nodeId === 'reset') { this.state.phantom = JSON.parse(JSON.stringify(INITIAL_PHANTOM_STATE)); nodeId = 'character_select'; }
+        
+        this.state.phantom.currentNode = nodeId;
+        const node = phantomData.nodes[nodeId];
+        const container = document.getElementById('scene-container');
+        const textEl = document.createElement('div');
+        textEl.className = 'scene-text' + (this.state.phantom.integrity < 40 ? ' corrupted' : '');
+        textEl.textContent = node.text;
+        container.innerHTML = '';
+        container.appendChild(textEl);
+
+        const screen = document.getElementById('investigation-screen');
+        if (this.state.phantom.integrity < 30) screen.classList.add('glitch-mode');
+        else screen.classList.remove('glitch-mode');
+
+        const choicesContainer = document.getElementById('choices-container');
+        choicesContainer.innerHTML = '';
+
+        node.choices.forEach(c => {
+            if (c.condition && !c.condition(this.state.phantom)) return;
+            const btn = document.createElement('button');
+            btn.className = 'choice-btn';
+            btn.textContent = c.text + (c.timer ? ` [${c.timer}s]` : '');
+            btn.onclick = () => {
+                this.clearTimer();
+                if (c.chance) {
+                    if (this.rollDice(c.chance)) {
+                        if (c.effect) c.effect(this.state.phantom);
+                        this.renderPhantomNode(c.next);
+                    } else {
+                        if (c.failEffect) c.failEffect(this.state.phantom);
+                        this.renderPhantomNode(c.failNext || nodeId);
+                    }
+                } else {
+                    if (c.effect) c.effect(this.state.phantom);
+                    this.renderPhantomNode(c.next);
+                }
+            };
+            choicesContainer.appendChild(btn);
+        });
+
+        const timedChoice = node.choices.find(c => c.timer);
+        if (timedChoice) {
+            this.startChoiceTimer(timedChoice.timer, () => {
+                this.renderPhantomNode(timedChoice.failNext || 'corruption_event');
+            });
+        }
+
+        this.updateStats();
+        if (this.state.phantom.integrity <= 0) {
+            this.notify('ЦЕЛОСТНОСТЬ ПОТЕРЯНА', 'danger');
+            setTimeout(() => this.renderPhantomNode('death'), 1000);
         }
     }
 
@@ -459,22 +564,21 @@ class ArchiveEngine {
     }
 
     updateStats() {
-        if (this.state.mode === 'aurora') {
-            const j = document.getElementById('justice-bar');
-            j.style.width = this.state.aurora.justice + '%';
-            j.classList.add('stat-pulsing'); setTimeout(() => j.classList.remove('stat-pulsing'), 500);
-
+        const m = this.state.mode;
+        if (m === 'aurora') {
+            document.getElementById('justice-bar').style.width = this.state.aurora.justice + '%';
             document.getElementById('pressure-bar').style.width = this.state.aurora.pressure + '%';
-        } else {
+        } else if (m === 'chains') {
             document.getElementById('paranoia-bar').style.width = this.state.chains.paranoia + '%';
             document.getElementById('clues-bar').style.width = this.state.chains.clues + '%';
             const inv = document.getElementById('inventory-list');
             inv.innerHTML = '';
             this.state.chains.inventory.forEach(i => {
-                const li = document.createElement('li');
-                li.textContent = i;
-                inv.appendChild(li);
+                const li = document.createElement('li'); li.textContent = i; inv.appendChild(li);
             });
+        } else if (m === 'phantom') {
+            document.getElementById('integrity-bar').style.width = this.state.phantom.integrity + '%';
+            document.getElementById('sync-bar').style.width = this.state.phantom.sync + '%';
         }
     }
 }
