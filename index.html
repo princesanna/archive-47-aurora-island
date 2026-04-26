@@ -4,30 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>АРХИВ №47: ОСТРОВ AURORA</title>
+    <meta name="description" content="Интерактивная детективная игра-расследование с нелинейным сюжетом и системой последствий">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Boot Screen -->
+    <div class="boot-screen" id="bootScreen">
+        <div class="boot-logo" data-text="AURORA_DB">АРХИВ №47</div>
+        <div class="boot-text">ДЕШИФРОВКА АРХИВА...</div>
+        <div class="boot-progress">
+            <div class="boot-progress-fill" id="bootProgress"></div>
+        </div>
+    </div>
+
     <div class="crt-overlay"></div>
     <div class="scanlines"></div>
 
-    <div class="system-container">
-        
+    <!-- Notification Banner -->
+    <div class="notification-banner" id="notificationBanner"></div>
+
+    <div class="system-container" id="systemContainer" style="display:none;">
+
         <aside class="sidebar panel">
             <div class="sidebar-header">
                 <div class="header-glitch" data-text="AURORA_DB">AURORA_DB</div>
                 <div class="header-subtitle">TOP SECRET / NOFORN</div>
             </div>
-            
-            <div class="file-tree" id="fileTree">
-                <!-- Файлы загружаются JS -->
+
+            <!-- Stats -->
+            <div class="stats-panel">
+                <div class="stat-row">
+                    <span class="stat-label">Справедл.</span>
+                    <div class="stat-track"><div class="stat-fill justice" id="justiceBar" style="width:30%"></div></div>
+                    <span class="stat-value" id="justiceVal">30</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Давление</span>
+                    <div class="stat-track"><div class="stat-fill pressure" id="pressureBar" style="width:10%"></div></div>
+                    <span class="stat-value" id="pressureVal">10</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Контроль</span>
+                    <div class="stat-track"><div class="stat-fill control" id="controlBar" style="width:50%"></div></div>
+                    <span class="stat-value" id="controlVal">50</span>
+                </div>
             </div>
-            
+
+            <div class="file-tree" id="fileTree"></div>
+
             <div class="sidebar-footer">
-                <div class="sys-info">SYS.V.7.4 // ONLINE</div>
-                <button class="btn-reset" onclick="resetGame()">[ СБРОС СИСТЕМЫ ]</button>
+                <div class="sys-info">SYS.V.7.4 // SECURE</div>
+                <button class="btn-reset" id="btnReset">[ СБРОС СИСТЕМЫ ]</button>
             </div>
         </aside>
 
@@ -42,14 +72,11 @@
 
             <div class="content-area" id="content">
                 <div class="loading-container">
-                    <div class="spinner"></div>
                     <div class="loading-text">DECRYPTING...</div>
                 </div>
             </div>
 
-            <div class="choices-panel" id="choicesPanel">
-                <!-- Кнопки действий -->
-            </div>
+            <div class="choices-panel" id="choicesPanel"></div>
 
             <div class="status-bar">
                 <div class="progress-box">
@@ -66,10 +93,12 @@
             <div class="ending-icon">/!\</div>
             <h2 class="ending-title" id="endingTitle"></h2>
             <div class="ending-text" id="endingText"></div>
-            <button class="btn-action ending-button" onclick="resetGame()">[ ИНИЦИАЛИЗАЦИЯ ПЕРЕЗАГРУЗКИ ]</button>
+            <div class="ending-stats" id="endingStats"></div>
+            <button class="ending-button" id="endingButton">[ ИНИЦИАЛИЗАЦИЯ ПЕРЕЗАГРУЗКИ ]</button>
         </div>
     </div>
 
+    <script src="scenes.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
